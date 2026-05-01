@@ -6,3 +6,81 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Priority {
+  none
+  low
+  medium
+  high
+  urgent
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(100)
+  email     String   @unique @db.VarChar(255)
+  avatarUrl String?  @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  boards Board[]
+  cards  Card[]
+}
+
+model Board {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(200)
+  ownerId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner   User     @relation(fields: [ownerId], references: [id])
+  columns Column[]
+  labels  Label[]
+}
+
+model Column {
+  id         String   @id @default(uuid())
+  boardId    String
+  title      String   @db.VarChar(100)
+  orderIndex Float
+  createdAt  DateTime @default(now())
+
+  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards Card[]
+}
+
+model Card {
+  id          String   @id @default(uuid())
+  columnId    String
+  title       String   @db.VarChar(300)
+  description String?
+  priority    Priority @default(none)
+  orderIndex  Float
+  assigneeId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  column   Column      @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  assignee User?       @relation(fields: [assigneeId], references: [id])
+  labels   CardLabel[]
+}
+
+model Label {
+  id      String @id @default(uuid())
+  boardId String
+  name    String @db.VarChar(50)
+  color   String @db.VarChar(7)
+
+  board Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  cards CardLabel[]
+}
+
+model CardLabel {
+  cardId  String
+  labelId String
+
+  card  Card  @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  label Label @relation(fields: [labelId], references: [id], onDelete: Cascade)
+
+  @@id([cardId, labelId])
+}
