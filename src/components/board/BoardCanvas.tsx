@@ -31,7 +31,7 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
   return (
     <div className="flex h-full items-start gap-3 overflow-x-auto p-6">
       {board.columns.map((col) => (
-        <Column key={col.id} column={col} />
+        <Column key={col.id} column={col} boardId={boardId} />
       ))}
     </div>
   )

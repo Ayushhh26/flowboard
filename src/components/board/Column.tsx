@@ -1,11 +1,13 @@
 import type { Column as ColumnType } from '@/types/column'
 import { CardItem } from './CardItem'
+import { AddCardInput } from './AddCardInput'
 
 interface ColumnProps {
   column: ColumnType
+  boardId: string
 }
 
-export function Column({ column }: ColumnProps) {
+export function Column({ column, boardId }: ColumnProps) {
   return (
     <div className="flex w-80 shrink-0 flex-col rounded-xl bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2.5">
@@ -26,9 +28,13 @@ export function Column({ column }: ColumnProps) {
             No tasks yet
           </div>
         ) : (
-          column.cards.map((card) => <CardItem key={card.id} card={card} />)
+          column.cards.map((card) => (
+            <CardItem key={card.id} card={card} boardId={boardId} />
+          ))
         )}
       </div>
+
+      <AddCardInput columnId={column.id} boardId={boardId} />
     </div>
   )
 }
