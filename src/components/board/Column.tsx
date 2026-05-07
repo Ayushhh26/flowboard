@@ -1,4 +1,5 @@
 import type { Column as ColumnType } from '@/types/column'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { CardItem } from './CardItem'
 import { AddCardInput } from './AddCardInput'
 
@@ -24,9 +25,7 @@ export function Column({ column, boardId }: ColumnProps) {
 
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-2">
         {column.cards.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center py-8 text-sm text-gray-400">
-            No tasks yet
-          </div>
+          <EmptyState title="No tasks yet" />
         ) : (
           column.cards.map((card) => (
             <CardItem key={card.id} card={card} boardId={boardId} />

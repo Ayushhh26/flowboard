@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/cn'
+import { PriorityBadge } from '@/components/ui/Badge'
 import type { Card } from '@/types/card'
 import { useDeleteCard } from '@/hooks/useDeleteCard'
 
@@ -29,6 +30,10 @@ export function CardItem({ card, boardId }: CardItemProps) {
       )}
     >
       <p className="pr-6 text-sm font-medium text-gray-900">{card.title}</p>
+
+      <div className="mt-2 flex items-center gap-1.5">
+        <PriorityBadge priority={card.priority} />
+      </div>
 
       <button
         aria-label="Delete card"

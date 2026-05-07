@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
+import { Button } from '@/components/ui/Button'
 import { useCreateCard } from '@/hooks/useCreateCard'
 
 interface AddCardInputProps {
@@ -13,7 +14,7 @@ export function AddCardInput({ columnId, boardId }: AddCardInputProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [title, setTitle] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  const { mutate: createCard } = useCreateCard(boardId)
+  const { mutate: createCard, isPending } = useCreateCard(boardId)
 
   const open = () => {
     setIsOpen(true)
@@ -67,18 +68,12 @@ export function AddCardInput({ columnId, boardId }: AddCardInputProps) {
         className="w-full resize-none rounded-lg border border-blue-400 p-2 text-sm text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
       />
       <div className="flex items-center gap-2">
-        <button
-          onClick={submit}
-          className="rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-blue-600"
-        >
+        <Button size="sm" onClick={submit} isLoading={isPending}>
           Add card
-        </button>
-        <button
-          onClick={close}
-          className="rounded-lg px-3 py-1.5 text-sm text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
-        >
+        </Button>
+        <Button size="sm" variant="ghost" onClick={close} disabled={isPending}>
           Cancel
-        </button>
+        </Button>
       </div>
     </div>
   )
