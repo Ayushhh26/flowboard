@@ -75,14 +75,18 @@ export function CardItem({ card, boardId }: CardItemProps) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
+      className="relative"
       {...attributes}
       {...listeners}
     >
       <CardItemContent
         card={card}
         boardId={boardId}
-        className={isDragging ? 'opacity-50' : undefined}
+        className={isDragging ? 'invisible' : undefined}
       />
+      {isDragging && (
+        <div className="pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40" />
+      )}
     </div>
   )
 }
