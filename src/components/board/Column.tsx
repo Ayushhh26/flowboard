@@ -2,6 +2,7 @@ import type { Column as ColumnType } from '@/types/column'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { CardItem } from './CardItem'
 import { AddCardInput } from './AddCardInput'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 interface ColumnProps {
   column: ColumnType
@@ -24,13 +25,15 @@ export function Column({ column, boardId }: ColumnProps) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-2">
-        {column.cards.length === 0 ? (
-          <EmptyState title="No tasks yet" />
-        ) : (
-          column.cards.map((card) => (
-            <CardItem key={card.id} card={card} boardId={boardId} />
-          ))
-        )}
+        <SortableContext items={column.cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {column.cards.length === 0 ? (
+            <EmptyState title="No tasks yet" />
+          ) : (
+            column.cards.map((card) => (
+              <CardItem key={card.id} card={card} boardId={boardId} />
+            ))
+          )}
+        </SortableContext>
       </div>
 
       <AddCardInput columnId={column.id} boardId={boardId} />
