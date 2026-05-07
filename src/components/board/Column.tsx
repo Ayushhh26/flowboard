@@ -1,8 +1,12 @@
+'use client'
+
 import type { Column as ColumnType } from '@/types/column'
+import { cn } from '@/lib/cn'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { CardItem } from './CardItem'
 import { AddCardInput } from './AddCardInput'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
 
 interface ColumnProps {
   column: ColumnType
@@ -10,6 +14,8 @@ interface ColumnProps {
 }
 
 export function Column({ column, boardId }: ColumnProps) {
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: column.id })
+
   return (
     <div className="flex w-80 shrink-0 flex-col rounded-xl bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-gray-100 px-3 py-2.5">
@@ -24,7 +30,13 @@ export function Column({ column, boardId }: ColumnProps) {
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-2">
+      <div
+        ref={setDropRef}
+        className={cn(
+          'flex flex-1 flex-col gap-2 overflow-y-auto p-2',
+          isOver && 'rounded-lg bg-blue-50'
+        )}
+      >
         <SortableContext items={column.cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
           {column.cards.length === 0 ? (
             <EmptyState title="No tasks yet" />
