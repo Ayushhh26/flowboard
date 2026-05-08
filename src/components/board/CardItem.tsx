@@ -4,6 +4,7 @@ import { cn } from '@/lib/cn'
 import { PriorityBadge } from '@/components/ui/Badge'
 import type { Card } from '@/types/card'
 import { useDeleteCard } from '@/hooks/useDeleteCard'
+import { useDrawerStore } from '@/stores/useDrawerStore'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -21,14 +22,16 @@ interface CardItemContentProps {
   style?: React.CSSProperties
   className?: string
   isDragOverlay?: boolean
+  onOpen?: () => void
 }
 
-export function CardItemContent({ card, boardId, style, className, isDragOverlay }: CardItemContentProps) {
+export function CardItemContent({ card, boardId, style, className, isDragOverlay, onOpen }: CardItemContentProps) {
   const { mutate: deleteCard } = useDeleteCard(boardId)
 
   return (
     <div
       style={style}
+      onClick={onOpen}
       className={cn(
         'group relative cursor-grab rounded-lg border border-gray-200 border-l-[3px] bg-white p-3',
         'transition-shadow duration-150 hover:shadow-md',
@@ -70,6 +73,7 @@ interface CardItemProps {
 
 export function CardItem({ card, boardId }: CardItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: card.id })
+  const { openCard } = useDrawerStore()
 
   return (
     <div
@@ -83,6 +87,7 @@ export function CardItem({ card, boardId }: CardItemProps) {
         card={card}
         boardId={boardId}
         className={isDragging ? 'invisible' : undefined}
+        onOpen={() => openCard(card.id)}
       />
       {isDragging && (
         <div className="pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40" />

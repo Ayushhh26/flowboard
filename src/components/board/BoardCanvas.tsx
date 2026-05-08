@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button'
 import { BoardSkeleton } from '@/components/ui/Skeleton'
 import { Column } from './Column'
 import { CardItemContent } from './CardItem'
+import { CardDrawer } from './CardDrawer'
 import type { Card } from '@/types/card'
 import type { Board } from '@/types/board'
 
@@ -163,6 +164,7 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
   }
 
   return (
+    <>
     <DndContext
       sensors={sensors}
       collisionDetection={closestCorners}
@@ -180,5 +182,7 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
         {activeCard && <CardItemContent card={activeCard} boardId={boardId} isDragOverlay />}
       </DragOverlay>
     </DndContext>
+    <CardDrawer boardId={boardId} />
+    </>
   )
 }
