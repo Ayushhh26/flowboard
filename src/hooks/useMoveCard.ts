@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { useDemoStore } from '@/stores/useDemoStore'
 import type { Board } from '@/types/board'
 import type { Card } from '@/types/card'
 import type { ApiResponse } from '@/types/api'
@@ -17,9 +18,13 @@ export function useMoveCard(boardId: string) {
 
   return useMutation({
     mutationFn: async ({ cardId, targetColumnId, newOrderIndex }: MoveCardVariables) => {
+      const { simulateFailure } = useDemoStore.getState()
       const res = await fetch(`/api/cards/${cardId}/move`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(simulateFailure && { 'x-simulate-failure': 'true' }),
+        },
         body: JSON.stringify({ targetColumnId, newOrderIndex }),
       })
       const json: ApiResponse<Card> = await res.json()
