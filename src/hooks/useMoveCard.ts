@@ -68,6 +68,8 @@ export function useMoveCard(boardId: string) {
         queryClient.setQueryData<Board>(['board', boardId], context.preSnapshot)
       }
       toast.error('Failed to move card')
+      const { simulateFailure, toggleSimulateFailure } = useDemoStore.getState()
+      if (simulateFailure) toggleSimulateFailure()
     },
 
     onSettled: () => {
