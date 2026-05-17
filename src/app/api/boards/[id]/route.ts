@@ -1,14 +1,23 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
+import { requireUser, UnauthorizedError } from '@/lib/auth'
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  let user
+  try {
+    user = await requireUser()
+  } catch (e) {
+    if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
+    throw e
+  }
+
   const { id } = await params
 
-  const board = await db.board.findUnique({
-    where: { id },
+  const board = await db.board.findFirst({
+    where: { id, ownerId: user.id },
     include: {
       columns: {
         orderBy: { orderIndex: 'asc' },

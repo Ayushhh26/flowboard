@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
+import { requireUser, UnauthorizedError } from '@/lib/auth'
 
 export async function POST(
   req: Request,
@@ -7,6 +8,14 @@ export async function POST(
 ) {
   if (req.headers.get('x-simulate-failure') === 'true') {
     return err('SIMULATED_FAILURE', 'Simulated network error for demo', 500)
+  }
+
+  let user
+  try {
+    user = await requireUser()
+  } catch (e) {
+    if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
+    throw e
   }
 
   const { id } = await params
@@ -19,14 +28,14 @@ export async function POST(
     return err('VALIDATION_ERROR', 'newOrderIndex must be a finite number', 400)
   }
 
-  const card = await db.card.findUnique({
-    where: { id },
+  const card = await db.card.findFirst({
+    where: { id, column: { board: { ownerId: user.id } } },
     include: { column: { select: { boardId: true } } },
   })
   if (!card) return err('NOT_FOUND', 'Card not found', 404)
 
-  const targetColumn = await db.column.findUnique({
-    where: { id: body.targetColumnId },
+  const targetColumn = await db.column.findFirst({
+    where: { id: body.targetColumnId, board: { ownerId: user.id } },
     select: { id: true, boardId: true },
   })
   if (!targetColumn) return err('NOT_FOUND', 'Target column not found', 404)

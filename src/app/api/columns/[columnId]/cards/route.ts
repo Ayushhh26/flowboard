@@ -1,5 +1,6 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
+import { requireUser, UnauthorizedError } from '@/lib/auth'
 import type { Priority } from '@/types/card'
 
 const VALID_PRIORITIES: Priority[] = ['none', 'low', 'medium', 'high', 'urgent']
@@ -8,6 +9,14 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ columnId: string }> }
 ) {
+  let user
+  try {
+    user = await requireUser()
+  } catch (e) {
+    if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
+    throw e
+  }
+
   const { columnId } = await params
   const body = await req.json() as { title?: unknown; priority?: unknown }
 
@@ -19,7 +28,10 @@ export async function POST(
     return err('VALIDATION_ERROR', `priority must be one of: ${VALID_PRIORITIES.join(', ')}`, 400)
   }
 
-  const column = await db.column.findUnique({ where: { id: columnId } })
+  const column = await db.column.findFirst({
+    where: { id: columnId, board: { ownerId: user.id } },
+    select: { id: true },
+  })
   if (!column) return err('NOT_FOUND', 'Column not found', 404)
 
   const lastCard = await db.card.findFirst({

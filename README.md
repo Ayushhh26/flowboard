@@ -107,16 +107,22 @@ prisma/
 # 1. Install
 npm install
 
-# 2. Copy env and fill in DATABASE_URL + DIRECT_URL (Supabase pooler + direct)
+# 2. Copy env and fill in DATABASE_URL, DIRECT_URL, NEXT_PUBLIC_SUPABASE_URL,
+#    NEXT_PUBLIC_SUPABASE_ANON_KEY (all from Supabase dashboard → Project Settings → API)
 cp .env.example .env
 
-# 3. Migrate + seed
-npx prisma migrate dev
-npm run seed
+# 3. Disable email confirmation in Supabase dashboard
+#    → Authentication → Sign In / Up → toggle "Confirm email" off
+#    (v1 of FlowBoard expects an immediate session on signup)
 
-# 4. Run
+# 4. Apply migrations (creates schema + the auth.users → public.User trigger)
+npx prisma migrate reset
+
+# 5. Run
 npm run dev
 ```
+
+FlowBoard targets a Supabase-hosted Postgres. The `supabase_auth_trigger` migration references `auth.users`, which only exists in a Supabase project — running `prisma migrate reset` against a vanilla Postgres will fail at that step.
 
 Required env vars:
 
@@ -124,6 +130,8 @@ Required env vars:
 |---|---|
 | `DATABASE_URL` | Pooled Postgres connection (Supabase pooler) |
 | `DIRECT_URL` | Direct Postgres connection (used by Prisma migrate) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (for the auth client) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key (for the auth client) |
 | `NEXT_PUBLIC_DEMO_MODE` | Set to `"true"` to render the demo-mode toggle in the header |
 
 ---
@@ -131,7 +139,7 @@ Required env vars:
 ## What's next
 
 - **Real-time collaboration** via Supabase Realtime — reconciling optimistic local updates with incoming server events without flicker
-- **Auth + multi-board sharing** (Clerk + row-level authorization)
+- **Multi-board sharing** — invite collaborators by email, `BoardMember` table with roles, row-level authorization
 - **AI-assisted card creation** — suggest priority and description from a title using the Claude API
-- **Keyboard shortcuts + WCAG 2.1 AA** — full keyboard navigation for the board
+- **Keyboard DnD + accessibility audit** — keyboard navigation for drag, axe / Lighthouse pass on critical flows
 - **Playwright E2E tests** for the drag-and-drop and optimistic rollback flows
