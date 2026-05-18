@@ -17,6 +17,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import { useQueryClient } from '@tanstack/react-query'
 import { useBoard } from '@/hooks/useBoard'
 import { useMoveCard } from '@/hooks/useMoveCard'
+import { useDemoStore } from '@/stores/useDemoStore'
 import { computeOrderIndex } from '@/lib/fractionalIndex'
 import { Button } from '@/components/ui/Button'
 import { BoardSkeleton } from '@/components/ui/Skeleton'
@@ -106,7 +107,7 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
     setActiveCard(null)
     lastOverId.current = null
 
-    if (!over || active.id === over.id) {
+    if (!over) {
       boardSnapshot.current = null
       return
     }
@@ -151,7 +152,8 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
       newOrderIndex = computeOrderIndex(neighborsOnly, insertIndex)
     }
 
-    moveCard({ cardId: activeId, targetColumnId: currentCol.id, newOrderIndex, insertIndex, preSnapshot: snapshot })
+    const simulateFailure = useDemoStore.getState().simulateFailure
+    moveCard({ cardId: activeId, targetColumnId: currentCol.id, newOrderIndex, insertIndex, preSnapshot: snapshot, simulateFailure })
   }
 
   const handleDragCancel = (_event: DragCancelEvent) => {
@@ -173,7 +175,7 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="flex h-full items-start gap-3 overflow-x-auto p-6">
+      <div className="flex h-full items-stretch gap-3 overflow-x-auto p-6">
         {board.columns.map((col) => (
           <Column key={col.id} column={col} boardId={boardId} />
         ))}

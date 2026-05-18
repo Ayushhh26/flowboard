@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { useDemoStore } from '@/stores/useDemoStore'
 import type { Board } from '@/types/board'
 import type { Card } from '@/types/card'
 import type { ApiResponse } from '@/types/api'
@@ -11,14 +10,14 @@ interface MoveCardVariables {
   newOrderIndex: number
   insertIndex: number
   preSnapshot: Board
+  simulateFailure: boolean
 }
 
 export function useMoveCard(boardId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ cardId, targetColumnId, newOrderIndex }: MoveCardVariables) => {
-      const { simulateFailure } = useDemoStore.getState()
+    mutationFn: async ({ cardId, targetColumnId, newOrderIndex, simulateFailure }: MoveCardVariables) => {
       const res = await fetch(`/api/cards/${cardId}/move`, {
         method: 'POST',
         headers: {
@@ -68,8 +67,6 @@ export function useMoveCard(boardId: string) {
         queryClient.setQueryData<Board>(['board', boardId], context.preSnapshot)
       }
       toast.error('Failed to move card')
-      const { simulateFailure, toggleSimulateFailure } = useDemoStore.getState()
-      if (simulateFailure) toggleSimulateFailure()
     },
 
     onSettled: () => {

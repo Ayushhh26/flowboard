@@ -33,7 +33,7 @@ export function Column({ column, boardId }: ColumnProps) {
       <div
         ref={setDropRef}
         className={cn(
-          'flex flex-1 flex-col gap-2 overflow-y-auto p-2',
+          'flex flex-1 flex-col gap-2 overflow-y-auto p-2 min-h-[6rem]',
           isOver && 'rounded-lg bg-blue-50'
         )}
       >
