@@ -16,20 +16,31 @@ export class UnauthorizedError extends Error {
   }
 }
 
-export async function getCurrentUser(): Promise<CurrentUser | null> {
+export type AuthState =
+  | { kind: 'unauthenticated' }
+  | { kind: 'orphan' }
+  | { kind: 'authenticated'; user: CurrentUser }
+
+export async function getAuthState(): Promise<AuthState> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) return null
+  if (!user) return { kind: 'unauthenticated' }
 
   const profile = await db.user.findUnique({
     where: { id: user.id },
     select: { id: true, email: true, name: true, avatarUrl: true },
   })
 
-  return profile
+  if (!profile) return { kind: 'orphan' }
+  return { kind: 'authenticated', user: profile }
+}
+
+export async function getCurrentUser(): Promise<CurrentUser | null> {
+  const state = await getAuthState()
+  return state.kind === 'authenticated' ? state.user : null
 }
 
 export async function requireUser(): Promise<CurrentUser> {
