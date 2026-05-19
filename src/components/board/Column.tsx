@@ -11,10 +11,11 @@ import { useDroppable } from '@dnd-kit/core'
 interface ColumnProps {
   column: ColumnType
   boardId: string
+  canEdit: boolean
 }
 
-export function Column({ column, boardId }: ColumnProps) {
-  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: column.id })
+export function Column({ column, boardId, canEdit }: ColumnProps) {
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: column.id, disabled: !canEdit })
 
   return (
     <div className="flex w-80 shrink-0 flex-col rounded-xl bg-white shadow-sm">
@@ -34,7 +35,7 @@ export function Column({ column, boardId }: ColumnProps) {
         ref={setDropRef}
         className={cn(
           'flex flex-1 flex-col gap-2 overflow-y-auto p-2 min-h-[6rem]',
-          isOver && 'rounded-lg bg-blue-50'
+          isOver && canEdit && 'rounded-lg bg-blue-50'
         )}
       >
         <SortableContext items={column.cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
@@ -42,13 +43,13 @@ export function Column({ column, boardId }: ColumnProps) {
             <EmptyState title="No tasks yet" />
           ) : (
             column.cards.map((card) => (
-              <CardItem key={card.id} card={card} boardId={boardId} />
+              <CardItem key={card.id} card={card} boardId={boardId} canEdit={canEdit} />
             ))
           )}
         </SortableContext>
       </div>
 
-      <AddCardInput columnId={column.id} boardId={boardId} />
+      {canEdit && <AddCardInput columnId={column.id} boardId={boardId} />}
     </div>
   )
 }

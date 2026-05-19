@@ -11,6 +11,14 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ name, email, avatarUrl }: UserMenuProps) {
+  async function handleSignOut(e: Event) {
+    // Prevent Radix from closing the menu before the request finishes —
+    // closing unmounts the item and would interrupt any inline form submission.
+    e.preventDefault()
+    await fetch('/auth/sign-out', { method: 'POST', redirect: 'manual' })
+    window.location.assign('/login')
+  }
+
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
@@ -41,15 +49,11 @@ export function UserMenu({ name, email, avatarUrl }: UserMenuProps) {
               My boards
             </Link>
           </DropdownMenu.Item>
-          <DropdownMenu.Item asChild>
-            <form action="/auth/sign-out" method="post">
-              <button
-                type="submit"
-                className="w-full cursor-pointer rounded px-2 py-1.5 text-left text-gray-700 outline-none data-[highlighted]:bg-gray-100"
-              >
-                Sign out
-              </button>
-            </form>
+          <DropdownMenu.Item
+            onSelect={handleSignOut}
+            className="cursor-pointer rounded px-2 py-1.5 text-left text-gray-700 outline-none data-[highlighted]:bg-gray-100"
+          >
+            Sign out
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>

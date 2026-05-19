@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
 import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { boardWriteAccess } from '@/lib/permissions'
 import type { UpdateCardPayload } from '@/types/card'
 
 export async function PATCH(
@@ -19,7 +20,7 @@ export async function PATCH(
   const body: UpdateCardPayload = await req.json()
 
   const card = await db.card.findFirst({
-    where: { id, column: { board: { ownerId: user.id } } },
+    where: { id, column: { board: boardWriteAccess(user.id) } },
     select: { id: true },
   })
   if (!card) return err('NOT_FOUND', 'Card not found', 404)
@@ -52,7 +53,7 @@ export async function DELETE(
   const { id } = await params
 
   const card = await db.card.findFirst({
-    where: { id, column: { board: { ownerId: user.id } } },
+    where: { id, column: { board: boardWriteAccess(user.id) } },
     select: { id: true },
   })
   if (!card) return err('NOT_FOUND', 'Card not found', 404)

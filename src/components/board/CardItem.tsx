@@ -23,9 +23,18 @@ interface CardItemContentProps {
   className?: string
   isDragOverlay?: boolean
   onOpen?: () => void
+  canEdit?: boolean
 }
 
-export function CardItemContent({ card, boardId, style, className, isDragOverlay, onOpen }: CardItemContentProps) {
+export function CardItemContent({
+  card,
+  boardId,
+  style,
+  className,
+  isDragOverlay,
+  onOpen,
+  canEdit = true,
+}: CardItemContentProps) {
   const { mutate: deleteCard } = useDeleteCard(boardId)
 
   return (
@@ -33,7 +42,8 @@ export function CardItemContent({ card, boardId, style, className, isDragOverlay
       style={style}
       onClick={onOpen}
       className={cn(
-        'group relative cursor-grab rounded-lg border border-gray-200 border-l-[3px] bg-white p-3',
+        'group relative rounded-lg border border-gray-200 border-l-[3px] bg-white p-3',
+        canEdit ? 'cursor-grab' : 'cursor-pointer',
         'transition-shadow duration-150 hover:shadow-md',
         priorityBorderClass[card.priority],
         className
@@ -45,7 +55,7 @@ export function CardItemContent({ card, boardId, style, className, isDragOverlay
         <PriorityBadge priority={card.priority} />
       </div>
 
-      {!isDragOverlay && (
+      {!isDragOverlay && canEdit && (
         <button
           aria-label="Delete card"
           onPointerDown={(e) => e.stopPropagation()}
@@ -69,10 +79,14 @@ export function CardItemContent({ card, boardId, style, className, isDragOverlay
 interface CardItemProps {
   card: Card
   boardId: string
+  canEdit: boolean
 }
 
-export function CardItem({ card, boardId }: CardItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: card.id })
+export function CardItem({ card, boardId, canEdit }: CardItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: card.id,
+    disabled: !canEdit,
+  })
   const { openCard } = useDrawerStore()
 
   return (
@@ -88,6 +102,7 @@ export function CardItem({ card, boardId }: CardItemProps) {
         boardId={boardId}
         className={isDragging ? 'invisible' : undefined}
         onOpen={() => openCard(card.id)}
+        canEdit={canEdit}
       />
       {isDragging && (
         <div className="pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40" />

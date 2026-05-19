@@ -26,10 +26,11 @@ import { Column } from './Column'
 import { CardItemContent } from './CardItem'
 import { CardDrawer } from './CardDrawer'
 import type { Card } from '@/types/card'
-import type { Board } from '@/types/board'
+import type { Board, ViewerRole } from '@/types/board'
 
 interface BoardCanvasProps {
   boardId: string
+  viewerRole: ViewerRole
 }
 
 function BoardError({ onRetry }: { onRetry: () => void }) {
@@ -41,7 +42,7 @@ function BoardError({ onRetry }: { onRetry: () => void }) {
   )
 }
 
-export function BoardCanvas({ boardId }: BoardCanvasProps) {
+export function BoardCanvas({ boardId, viewerRole }: BoardCanvasProps) {
   const { data: board, isLoading, isError, refetch } = useBoard(boardId)
   const queryClient = useQueryClient()
   useBoardRealtime(boardId)
@@ -53,11 +54,13 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   )
   const { mutate: moveCard } = useMoveCard(boardId)
+  const canEdit = viewerRole !== 'viewer'
 
   if (isLoading) return <BoardSkeleton />
   if (isError || !board) return <BoardError onRetry={() => refetch()} />
 
   const handleDragStart = ({ active }: DragStartEvent) => {
+    if (!canEdit) return
     boardSnapshot.current = queryClient.getQueryData<Board>(['board', boardId]) ?? null
     lastOverId.current = null
     const card = board.columns.flatMap((c) => c.cards).find((c) => c.id === active.id)
@@ -65,6 +68,7 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
   }
 
   const handleDragOver = ({ active, over }: DragOverEvent) => {
+    if (!canEdit) return
     if (!over) return
     const overId = over.id as string
     if (overId === lastOverId.current) return
@@ -108,6 +112,7 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     setActiveCard(null)
     lastOverId.current = null
+    if (!canEdit) return
 
     if (!over) {
       boardSnapshot.current = null
@@ -179,14 +184,14 @@ export function BoardCanvas({ boardId }: BoardCanvasProps) {
     >
       <div className="flex h-full items-stretch gap-3 overflow-x-auto p-6">
         {board.columns.map((col) => (
-          <Column key={col.id} column={col} boardId={boardId} />
+          <Column key={col.id} column={col} boardId={boardId} canEdit={canEdit} />
         ))}
       </div>
       <DragOverlay>
-        {activeCard && <CardItemContent card={activeCard} boardId={boardId} isDragOverlay />}
+        {activeCard && <CardItemContent card={activeCard} boardId={boardId} isDragOverlay canEdit={canEdit} />}
       </DragOverlay>
     </DndContext>
-    <CardDrawer boardId={boardId} />
+    <CardDrawer boardId={boardId} canEdit={canEdit} />
     </>
   )
 }

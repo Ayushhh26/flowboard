@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
 import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { boardReadAccess, resolveViewerRole } from '@/lib/permissions'
 
 export async function GET(
   _req: Request,
@@ -17,7 +18,7 @@ export async function GET(
   const { id } = await params
 
   const board = await db.board.findFirst({
-    where: { id, ownerId: user.id },
+    where: { id, ...boardReadAccess(user.id) },
     include: {
       columns: {
         orderBy: { orderIndex: 'asc' },
@@ -36,8 +37,11 @@ export async function GET(
 
   if (!board) return err('NOT_FOUND', 'Board not found', 404)
 
+  const viewerRole = await resolveViewerRole(id, user.id)
+
   const transformed = {
     ...board,
+    viewerRole,
     columns: board.columns.map((col) => ({
       ...col,
       cards: col.cards.map((card) => ({

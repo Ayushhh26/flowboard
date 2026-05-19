@@ -15,6 +15,11 @@ enum Priority {
   urgent
 }
 
+enum MemberRole {
+  editor
+  viewer
+}
+
 model User {
   id        String   @id @db.Uuid
   name      String   @db.VarChar(100)
@@ -22,8 +27,10 @@ model User {
   avatarUrl String?  @db.VarChar(500)
   createdAt DateTime @default(now())
 
-  boards Board[]
-  cards  Card[]
+  boards          Board[]
+  cards           Card[]
+  memberships     BoardMember[]
+  invitationsSent BoardInvitation[] @relation("InvitationsSent")
 }
 
 model Board {
@@ -33,9 +40,39 @@ model Board {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  owner   User     @relation(fields: [ownerId], references: [id])
-  columns Column[]
-  labels  Label[]
+  owner       User              @relation(fields: [ownerId], references: [id])
+  columns     Column[]
+  labels      Label[]
+  members     BoardMember[]
+  invitations BoardInvitation[]
+}
+
+model BoardMember {
+  boardId   String
+  userId    String     @db.Uuid
+  role      MemberRole
+  createdAt DateTime   @default(now())
+
+  board Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([boardId, userId])
+  @@index([userId])
+}
+
+model BoardInvitation {
+  id        String     @id @default(uuid())
+  boardId   String
+  email     String     @db.VarChar(255)
+  role      MemberRole
+  invitedBy String     @db.Uuid
+  createdAt DateTime   @default(now())
+
+  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  inviter User  @relation("InvitationsSent", fields: [invitedBy], references: [id], onDelete: Cascade)
+
+  @@unique([boardId, email])
+  @@index([email])
 }
 
 model Column {

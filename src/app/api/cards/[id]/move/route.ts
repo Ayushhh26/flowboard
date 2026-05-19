@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
 import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { boardWriteAccess } from '@/lib/permissions'
 
 export async function POST(
   req: Request,
@@ -29,13 +30,13 @@ export async function POST(
   }
 
   const card = await db.card.findFirst({
-    where: { id, column: { board: { ownerId: user.id } } },
+    where: { id, column: { board: boardWriteAccess(user.id) } },
     include: { column: { select: { boardId: true } } },
   })
   if (!card) return err('NOT_FOUND', 'Card not found', 404)
 
   const targetColumn = await db.column.findFirst({
-    where: { id: body.targetColumnId, board: { ownerId: user.id } },
+    where: { id: body.targetColumnId, board: boardWriteAccess(user.id) },
     select: { id: true, boardId: true },
   })
   if (!targetColumn) return err('NOT_FOUND', 'Target column not found', 404)

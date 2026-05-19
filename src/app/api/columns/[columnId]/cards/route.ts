@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
 import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { boardWriteAccess } from '@/lib/permissions'
 import type { Priority } from '@/types/card'
 
 const VALID_PRIORITIES: Priority[] = ['none', 'low', 'medium', 'high', 'urgent']
@@ -29,7 +30,7 @@ export async function POST(
   }
 
   const column = await db.column.findFirst({
-    where: { id: columnId, board: { ownerId: user.id } },
+    where: { id: columnId, board: boardWriteAccess(user.id) },
     select: { id: true },
   })
   if (!column) return err('NOT_FOUND', 'Column not found', 404)

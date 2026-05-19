@@ -10,9 +10,10 @@ import { PriorityBadge } from '@/components/ui/Badge'
 
 interface CardDrawerProps {
   boardId: string
+  canEdit: boolean
 }
 
-export function CardDrawer({ boardId }: CardDrawerProps) {
+export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
   const { openCardId, closeCard } = useDrawerStore()
   const { data: board } = useBoard(boardId)
   const { mutate: updateCard } = useUpdateCard(boardId)
@@ -46,14 +47,18 @@ export function CardDrawer({ boardId }: CardDrawerProps) {
                 {/* Header */}
                 <div className="flex items-start gap-2 border-b border-gray-100 px-5 py-4">
                   <div className="flex-1">
-                    <InlineEdit
-                      value={card.title}
-                      onSave={(t) => {
-                        if (t !== card.title) updateCard({ cardId: card.id, title: t })
-                      }}
-                      className="text-base font-semibold text-gray-900"
-                      inputClassName="text-base font-semibold"
-                    />
+                    {canEdit ? (
+                      <InlineEdit
+                        value={card.title}
+                        onSave={(t) => {
+                          if (t !== card.title) updateCard({ cardId: card.id, title: t })
+                        }}
+                        className="text-base font-semibold text-gray-900"
+                        inputClassName="text-base font-semibold"
+                      />
+                    ) : (
+                      <h2 className="text-base font-semibold text-gray-900">{card.title}</h2>
+                    )}
                   </div>
                   <Dialog.Close className="mt-0.5 rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
