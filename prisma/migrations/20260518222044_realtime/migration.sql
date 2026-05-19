@@ -27,6 +27,17 @@ CREATE POLICY "card_select_by_board_owner"
     )
   );
 
--- 3. Add Card to the Realtime publication so logical replication streams
+-- 3. GRANTs for the authenticated role. Required because:
+--    (a) Prisma-created tables don't grant SELECT to anyone by default;
+--    (b) the RLS policy above joins Column and Board, so the authenticated
+--        role needs SELECT on all three tables — without it the EXISTS
+--        subquery returns false and Realtime silently drops the event
+--        (no WebSocket frame, no 401 — just nothing).
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT SELECT ON public."Card" TO authenticated;
+GRANT SELECT ON public."Column" TO authenticated;
+GRANT SELECT ON public."Board" TO authenticated;
+
+-- 4. Add Card to the Realtime publication so logical replication streams
 --    INSERT / UPDATE / DELETE events to subscribed clients.
 ALTER PUBLICATION supabase_realtime ADD TABLE public."Card";

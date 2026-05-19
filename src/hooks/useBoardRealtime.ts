@@ -26,35 +26,53 @@ export function useBoardRealtime(boardId: string) {
 
   useEffect(() => {
     const supabase = createClient()
-    const channel = supabase
-      .channel(`board:${boardId}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'Card' },
-        (payload) => {
-          handleInsert(queryClient, boardId, payload.new as RawCardRow)
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'Card' },
-        (payload) => {
-          handleUpdate(queryClient, boardId, payload.new as RawCardRow)
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'Card' },
-        (payload) => {
-          const oldRow = payload.old as Partial<RawCardRow>
-          if (!oldRow.id) return
-          handleDelete(queryClient, boardId, oldRow.id)
-        }
-      )
-      .subscribe()
+    let cancelled = false
+    let channel: ReturnType<typeof supabase.channel> | null = null
+
+    async function setup() {
+      // RLS on Card only allows the `authenticated` role. We have to push the
+      // user's JWT into the Realtime client before subscribing, otherwise the
+      // WebSocket joins as anon and the server strips row data with a 401.
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (!session || cancelled) return
+      await supabase.realtime.setAuth(session.access_token)
+      if (cancelled) return
+
+      channel = supabase
+        .channel(`board:${boardId}`)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'Card' },
+          (payload) => {
+            handleInsert(queryClient, boardId, payload.new as RawCardRow)
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: 'UPDATE', schema: 'public', table: 'Card' },
+          (payload) => {
+            handleUpdate(queryClient, boardId, payload.new as RawCardRow)
+          }
+        )
+        .on(
+          'postgres_changes',
+          { event: 'DELETE', schema: 'public', table: 'Card' },
+          (payload) => {
+            const oldRow = payload.old as Partial<RawCardRow>
+            if (!oldRow.id) return
+            handleDelete(queryClient, boardId, oldRow.id)
+          }
+        )
+        .subscribe()
+    }
+
+    setup()
 
     return () => {
-      supabase.removeChannel(channel)
+      cancelled = true
+      if (channel) supabase.removeChannel(channel)
     }
   }, [boardId, queryClient])
 }
