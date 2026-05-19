@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { beginCardMutation, endCardMutation } from '@/lib/mutationTracker'
 import type { Board } from '@/types/board'
 import type { ApiResponse } from '@/types/api'
 
@@ -19,6 +20,7 @@ export function useDeleteCard(boardId: string) {
     },
 
     onMutate: async ({ cardId }) => {
+      beginCardMutation(cardId)
       await queryClient.cancelQueries({ queryKey: ['board', boardId] })
       const previousBoard = queryClient.getQueryData<Board>(['board', boardId])
 
@@ -41,7 +43,8 @@ export function useDeleteCard(boardId: string) {
       toast.error('Failed to delete card')
     },
 
-    onSettled: () => {
+    onSettled: (_data, _err, vars) => {
+      endCardMutation(vars.cardId)
       queryClient.invalidateQueries({ queryKey: ['board', boardId] })
     },
   })

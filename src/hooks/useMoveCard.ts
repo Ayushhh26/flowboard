@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { beginCardMutation, endCardMutation } from '@/lib/mutationTracker'
 import type { Board } from '@/types/board'
 import type { Card } from '@/types/card'
 import type { ApiResponse } from '@/types/api'
@@ -32,6 +33,7 @@ export function useMoveCard(boardId: string) {
     },
 
     onMutate: async ({ cardId, targetColumnId, newOrderIndex, insertIndex, preSnapshot }) => {
+      beginCardMutation(cardId)
       await queryClient.cancelQueries({ queryKey: ['board', boardId] })
 
       queryClient.setQueryData<Board>(['board', boardId], (old) => {
@@ -69,7 +71,8 @@ export function useMoveCard(boardId: string) {
       toast.error('Failed to move card')
     },
 
-    onSettled: () => {
+    onSettled: (_data, _err, vars) => {
+      endCardMutation(vars.cardId)
       queryClient.invalidateQueries({ queryKey: ['board', boardId] })
     },
   })

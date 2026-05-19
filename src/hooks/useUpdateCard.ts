@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { beginCardMutation, endCardMutation } from '@/lib/mutationTracker'
 import type { Board } from '@/types/board'
 import type { Card, Priority } from '@/types/card'
 import type { ApiResponse } from '@/types/api'
@@ -27,6 +28,7 @@ export function useUpdateCard(boardId: string) {
     },
 
     onMutate: async ({ cardId, ...updates }) => {
+      beginCardMutation(cardId)
       await queryClient.cancelQueries({ queryKey: ['board', boardId] })
       const previousBoard = queryClient.getQueryData<Board>(['board', boardId])
 
@@ -49,7 +51,8 @@ export function useUpdateCard(boardId: string) {
       toast.error('Failed to update card')
     },
 
-    onSettled: () => {
+    onSettled: (_data, _err, vars) => {
+      endCardMutation(vars.cardId)
       queryClient.invalidateQueries({ queryKey: ['board', boardId] })
     },
   })

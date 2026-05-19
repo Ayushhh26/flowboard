@@ -17,6 +17,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import { useQueryClient } from '@tanstack/react-query'
 import { useBoard } from '@/hooks/useBoard'
 import { useMoveCard } from '@/hooks/useMoveCard'
+import { useBoardRealtime } from '@/hooks/useBoardRealtime'
 import { useDemoStore } from '@/stores/useDemoStore'
 import { computeOrderIndex } from '@/lib/fractionalIndex'
 import { Button } from '@/components/ui/Button'
@@ -43,6 +44,7 @@ function BoardError({ onRetry }: { onRetry: () => void }) {
 export function BoardCanvas({ boardId }: BoardCanvasProps) {
   const { data: board, isLoading, isError, refetch } = useBoard(boardId)
   const queryClient = useQueryClient()
+  useBoardRealtime(boardId)
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const boardSnapshot = useRef<Board | null>(null)
   const lastOverId = useRef<string | null>(null)
