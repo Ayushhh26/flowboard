@@ -122,7 +122,12 @@ npx prisma migrate reset
 npm run dev
 ```
 
-FlowBoard targets a Supabase-hosted Postgres. The `supabase_auth_trigger` migration references `auth.users`, which only exists in a Supabase project — running `prisma migrate reset` against a vanilla Postgres will fail at that step.
+FlowBoard targets a Supabase-hosted Postgres. Two of the migrations assume a Supabase-shaped DB and will fail against vanilla Postgres:
+
+- `supabase_auth_trigger` references `auth.users`
+- `realtime` references `auth.uid()`, `supabase_realtime` publication, and the `authenticated` role
+
+The `realtime` migration also issues `GRANT SELECT` on the Card, Column, and Board tables to the `authenticated` role. These grants are required because the RLS policy on Card joins through Column and Board — without SELECT on all three, the policy's EXISTS subquery returns false and Supabase Realtime silently drops the event with no error frame. If you ever see "WebSocket subscribes ok, heartbeats flow, but no `postgres_changes` events arrive" on a new table, check the grants first.
 
 Required env vars:
 
@@ -138,8 +143,7 @@ Required env vars:
 
 ## What's next
 
-- **Real-time collaboration** via Supabase Realtime — reconciling optimistic local updates with incoming server events without flicker
-- **Multi-board sharing** — invite collaborators by email, `BoardMember` table with roles, row-level authorization
+- **Multi-board sharing** — invite collaborators by email, `BoardMember` table with roles, RLS policy extended to include members. The real-time infrastructure is already in place; sharing turns multi-tab sync into true multi-user sync.
 - **AI-assisted card creation** — suggest priority and description from a title using the Claude API
 - **Keyboard DnD + accessibility audit** — keyboard navigation for drag, axe / Lighthouse pass on critical flows
 - **Playwright E2E tests** for the drag-and-drop and optimistic rollback flows
