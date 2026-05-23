@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDrawerStore } from '@/stores/useDrawerStore'
@@ -7,6 +8,16 @@ import { useBoard } from '@/hooks/useBoard'
 import { useUpdateCard } from '@/hooks/useUpdateCard'
 import { InlineEdit } from '@/components/ui/InlineEdit'
 import { PriorityBadge } from '@/components/ui/Badge'
+import { cn } from '@/lib/cn'
+import type { Priority } from '@/types/card'
+
+const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
+  { value: 'none', label: 'No priority' },
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'urgent', label: 'Urgent' },
+]
 
 interface CardDrawerProps {
   boardId: string
@@ -19,6 +30,21 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
   const { mutate: updateCard } = useUpdateCard(boardId)
 
   const card = board?.columns.flatMap((c) => c.cards).find((c) => c.id === openCardId) ?? null
+
+  const [descriptionDraft, setDescriptionDraft] = useState('')
+
+  useEffect(() => {
+    if (card) setDescriptionDraft(card.description ?? '')
+  }, [card?.id, card?.description])
+
+  function saveDescription() {
+    if (!card || !canEdit) return
+    const trimmed = descriptionDraft.trim()
+    const next = trimmed === '' ? null : trimmed
+    if (next !== card.description) {
+      updateCard({ cardId: card.id, description: next })
+    }
+  }
 
   return (
     <Dialog.Root open={!!openCardId} onOpenChange={(open) => !open && closeCard()}>
@@ -44,7 +70,6 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
               >
                 <Dialog.Title className="sr-only">{card.title}</Dialog.Title>
 
-                {/* Header */}
                 <div className="flex items-start gap-2 border-b border-gray-100 px-5 py-4">
                   <div className="flex-1">
                     {canEdit ? (
@@ -68,35 +93,76 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                   </Dialog.Close>
                 </div>
 
-                {/* Body */}
                 <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">
-                  {/* Priority */}
                   <div>
-                    <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">Priority</p>
-                    <div className="flex items-center">
-                      {card.priority === 'none' ? (
-                        <span className="text-sm text-gray-400">No priority</span>
-                      ) : (
-                        <PriorityBadge priority={card.priority} />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">Description</p>
-                    <p className="text-sm text-gray-600">
-                      {card.description ?? <span className="text-gray-400 italic">No description</span>}
+                    <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                      Priority
                     </p>
+                    {canEdit ? (
+                      <select
+                        value={card.priority}
+                        onChange={(e) => {
+                          const priority = e.target.value as Priority
+                          if (priority !== card.priority) {
+                            updateCard({ cardId: card.id, priority })
+                          }
+                        }}
+                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                      >
+                        {PRIORITY_OPTIONS.map((opt) => (
+                          <option key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : card.priority === 'none' ? (
+                      <span className="text-sm text-gray-400">No priority</span>
+                    ) : (
+                      <PriorityBadge priority={card.priority} />
+                    )}
                   </div>
 
-                  {/* Timestamps */}
+                  <div>
+                    <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">
+                      Description
+                    </p>
+                    {canEdit ? (
+                      <textarea
+                        value={descriptionDraft}
+                        onChange={(e) => setDescriptionDraft(e.target.value)}
+                        onBlur={saveDescription}
+                        placeholder="Add a description..."
+                        rows={6}
+                        className={cn(
+                          'w-full resize-y rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900',
+                          'placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100'
+                        )}
+                      />
+                    ) : (
+                      <p className="text-sm text-gray-600">
+                        {card.description ?? (
+                          <span className="text-gray-400 italic">No description</span>
+                        )}
+                      </p>
+                    )}
+                  </div>
+
                   <div className="mt-auto border-t border-gray-100 pt-4">
                     <p className="text-xs text-gray-400">
-                      Created {new Date(card.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      Created{' '}
+                      {new Date(card.createdAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
                     </p>
                     <p className="text-xs text-gray-400">
-                      Updated {new Date(card.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      Updated{' '}
+                      {new Date(card.updatedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
                     </p>
                   </div>
                 </div>

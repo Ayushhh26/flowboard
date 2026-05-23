@@ -2,7 +2,10 @@
 
 import { cn } from '@/lib/cn'
 import { useDemoStore } from '@/stores/useDemoStore'
+import { useBoard } from '@/hooks/useBoard'
+import { useUpdateBoard } from '@/hooks/useUpdateBoard'
 import { UserMenu } from '@/components/ui/UserMenu'
+import { InlineEdit } from '@/components/ui/InlineEdit'
 import { ShareButton } from './ShareButton'
 import type { ViewerRole } from '@/types/board'
 
@@ -19,14 +22,30 @@ interface BoardHeaderProps {
   user?: BoardHeaderUser
 }
 
-export function BoardHeader({ name, boardId, viewerRole, user }: BoardHeaderProps) {
+export function BoardHeader({ name: initialName, boardId, viewerRole, user }: BoardHeaderProps) {
   const { simulateFailure, toggleSimulateFailure } = useDemoStore()
+  const { data: board } = useBoard(boardId)
+  const { mutate: updateBoard } = useUpdateBoard(boardId)
   const canEdit = viewerRole !== 'viewer'
   const isOwner = viewerRole === 'owner'
 
+  const displayName = board?.name ?? initialName
+
   return (
     <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-      <h1 className="text-2xl font-semibold text-gray-900">{name}</h1>
+      {isOwner ? (
+        <InlineEdit
+          value={displayName}
+          onSave={(next) => {
+            if (next !== displayName) updateBoard({ name: next })
+          }}
+          placeholder="Untitled board"
+          className="text-2xl font-semibold text-gray-900"
+          inputClassName="text-2xl font-semibold"
+        />
+      ) : (
+        <h1 className="text-2xl font-semibold text-gray-900">{displayName}</h1>
+      )}
       <div className="flex items-center gap-3">
         {canEdit && process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
           <button
