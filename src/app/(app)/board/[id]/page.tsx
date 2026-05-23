@@ -24,7 +24,7 @@ export default async function BoardPage({
   const viewerRole = (await resolveViewerRole(id, user.id))!
 
   return (
-    <div className="flex h-full flex-col bg-slate-100">
+    <div className="flex h-full flex-col bg-slate-50">
       <BoardHeader name={board.name} boardId={id} viewerRole={viewerRole} user={user} />
       <div className="min-h-0 flex-1">
         <BoardCanvas boardId={id} viewerRole={viewerRole} />

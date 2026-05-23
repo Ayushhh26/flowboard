@@ -2,6 +2,7 @@
 
 import { forwardRef, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
+import { focusRingClassName } from '@/lib/ui-colors'
 
 export interface InlineEditProps {
   value: string
@@ -41,7 +42,10 @@ export const InlineEdit = forwardRef<HTMLInputElement, InlineEditProps>(function
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') { e.preventDefault(); commit() }
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      commit()
+    }
     if (e.key === 'Escape') cancel()
   }
 
@@ -58,8 +62,7 @@ export const InlineEdit = forwardRef<HTMLInputElement, InlineEditProps>(function
         onBlur={commit}
         onKeyDown={handleKeyDown}
         className={cn(
-          'w-full rounded border border-blue-400 bg-white px-1 py-0.5 outline-none',
-          'focus:ring-2 focus:ring-blue-400 focus:ring-offset-1',
+          'w-full rounded-md border border-indigo-400 bg-white px-1 py-0.5 shadow-sm outline-none focus:ring-2 focus:ring-indigo-100',
           inputClassName
         )}
       />
@@ -71,11 +74,13 @@ export const InlineEdit = forwardRef<HTMLInputElement, InlineEditProps>(function
       role="button"
       tabIndex={0}
       onClick={startEditing}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') startEditing() }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') startEditing()
+      }}
       className={cn(
-        'cursor-text rounded px-1 py-0.5 hover:bg-gray-100',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400',
-        !value && 'text-gray-400',
+        'block min-w-0 cursor-text rounded-md px-1 py-0.5 transition-colors duration-200 hover:bg-slate-100',
+        focusRingClassName,
+        !value && 'text-slate-400',
         className
       )}
     >

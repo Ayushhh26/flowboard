@@ -25,11 +25,11 @@ export function PrioritySelect({ value, onChange, disabled }: PrioritySelectProp
             disabled={disabled}
             onClick={() => onChange(opt.value)}
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors',
+              'inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors duration-200',
               'disabled:cursor-not-allowed disabled:opacity-50',
               isSelected
                 ? styles.selected
-                : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50'
+                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
             )}
           >
             <span className={cn('h-2 w-2 shrink-0 rounded-full', styles.dot)} aria-hidden />

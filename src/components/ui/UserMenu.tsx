@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Avatar } from '@/components/ui/Avatar'
+import { focusRingClassName } from '@/lib/ui-colors'
+import { cn } from '@/lib/cn'
 
 interface UserMenuProps {
   name: string
@@ -24,7 +26,7 @@ export function UserMenu({ name, email, avatarUrl }: UserMenuProps) {
       <DropdownMenu.Trigger asChild>
         <button
           type="button"
-          className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1"
+          className={cn('cursor-pointer rounded-full', focusRingClassName)}
           aria-label="Open user menu"
         >
           <Avatar name={name} src={avatarUrl} size="md" />
@@ -34,24 +36,24 @@ export function UserMenu({ name, email, avatarUrl }: UserMenuProps) {
         <DropdownMenu.Content
           align="end"
           sideOffset={6}
-          className="z-50 min-w-[12rem] rounded-md border border-gray-200 bg-white p-1 text-sm shadow-md"
+          className="z-50 min-w-[12rem] rounded-lg border border-slate-200 bg-white p-1 text-sm shadow-lg"
         >
           <div className="px-2 py-1.5">
-            <p className="truncate font-medium text-gray-900">{name}</p>
-            <p className="truncate text-xs text-gray-500">{email}</p>
+            <p className="truncate font-medium text-slate-900">{name}</p>
+            <p className="truncate text-xs text-slate-500">{email}</p>
           </div>
-          <DropdownMenu.Separator className="my-1 h-px bg-gray-100" />
+          <DropdownMenu.Separator className="my-1 h-px bg-slate-100" />
           <DropdownMenu.Item asChild>
             <Link
               href="/"
-              className="block cursor-pointer rounded px-2 py-1.5 text-gray-700 outline-none data-[highlighted]:bg-gray-100"
+              className="block cursor-pointer rounded-md px-2 py-1.5 text-slate-700 outline-none transition-colors duration-200 data-[highlighted]:bg-slate-100"
             >
               My boards
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={handleSignOut}
-            className="cursor-pointer rounded px-2 py-1.5 text-left text-gray-700 outline-none data-[highlighted]:bg-gray-100"
+            className="cursor-pointer rounded-md px-2 py-1.5 text-left text-slate-700 outline-none transition-colors duration-200 data-[highlighted]:bg-slate-100"
           >
             Sign out
           </DropdownMenu.Item>

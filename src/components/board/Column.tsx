@@ -2,6 +2,7 @@
 
 import type { Column as ColumnType } from '@/types/column'
 import { cn } from '@/lib/cn'
+import { cardSurfaceClassName } from '@/lib/ui-colors'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { CardItem } from './CardItem'
 import { AddCardInput } from './AddCardInput'
@@ -18,10 +19,10 @@ export function Column({ column, boardId, canEdit }: ColumnProps) {
   const { setNodeRef: setDropRef, isOver } = useDroppable({ id: column.id, disabled: !canEdit })
 
   return (
-    <div className="flex w-80 shrink-0 flex-col rounded-xl border border-gray-200/80 bg-white shadow-sm">
-      <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/80 px-3 py-2.5">
+    <div className={cn('flex w-72 shrink-0 flex-col sm:w-80', cardSurfaceClassName)}>
+      <div className="flex items-center justify-between border-b border-slate-100 px-3 py-3">
         <h2
-          className="text-xs font-semibold uppercase tracking-wide text-gray-600"
+          className="text-xs font-semibold uppercase tracking-wide text-slate-600"
           aria-label={`${column.title}, ${column.cards.length} tasks`}
         >
           {column.title}
@@ -30,8 +31,8 @@ export function Column({ column, boardId, canEdit }: ColumnProps) {
           className={cn(
             'rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums',
             column.cards.length > 0
-              ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-200/60'
-              : 'bg-gray-100 text-gray-500'
+              ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/60'
+              : 'bg-slate-100 text-slate-500'
           )}
         >
           {column.cards.length}
@@ -41,13 +42,13 @@ export function Column({ column, boardId, canEdit }: ColumnProps) {
       <div
         ref={setDropRef}
         className={cn(
-          'flex min-h-[6rem] flex-1 flex-col gap-2 overflow-y-auto p-2',
-          isOver && canEdit && 'rounded-lg bg-blue-50/80 ring-1 ring-inset ring-blue-200'
+          'flex min-h-[8rem] flex-1 flex-col gap-2 overflow-y-auto p-2 transition-colors duration-200',
+          isOver && canEdit && 'rounded-lg bg-indigo-50/90 ring-1 ring-inset ring-indigo-200'
         )}
       >
         <SortableContext items={column.cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
           {column.cards.length === 0 ? (
-            <EmptyState title="No tasks yet" />
+            <EmptyState title="No tasks yet" description="Add a card to get started" />
           ) : (
             column.cards.map((card) => (
               <CardItem key={card.id} card={card} boardId={boardId} canEdit={canEdit} />

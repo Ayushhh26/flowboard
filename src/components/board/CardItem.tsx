@@ -35,14 +35,15 @@ export function CardItemContent({
       style={style}
       onClick={onOpen}
       className={cn(
-        'group relative rounded-lg border border-gray-200 border-l-[3px] bg-white p-3',
-        canEdit ? 'cursor-grab' : 'cursor-pointer',
-        'transition-shadow duration-150 hover:shadow-md',
+        'group relative rounded-lg border border-slate-200 border-l-[3px] bg-white p-3 shadow-sm',
+        canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
+        'transition-[box-shadow,border-color] duration-200 hover:border-slate-300 hover:shadow-md',
+        isDragOverlay && 'shadow-lg ring-2 ring-indigo-200',
         PRIORITY_STYLES[card.priority].border,
         className
       )}
     >
-      <p className="pr-6 text-sm font-medium text-gray-900">{card.title}</p>
+      <p className="pr-6 text-sm font-medium leading-snug text-slate-900">{card.title}</p>
 
       <div className="mt-2 flex items-center gap-1.5">
         <PriorityBadge priority={card.priority} />
@@ -50,13 +51,14 @@ export function CardItemContent({
 
       {!isDragOverlay && canEdit && (
         <button
+          type="button"
           aria-label="Delete card"
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.stopPropagation()
             deleteCard({ cardId: card.id })
           }}
-          className="absolute right-1 top-1 rounded p-0.5 text-gray-400 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+          className="absolute right-1 top-1 cursor-pointer rounded p-0.5 text-slate-400 opacity-0 transition-all duration-200 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="4" cy="8" r="1.5" fill="currentColor" />
@@ -98,7 +100,7 @@ export function CardItem({ card, boardId, canEdit }: CardItemProps) {
         canEdit={canEdit}
       />
       {isDragging && (
-        <div className="pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40" />
+        <div className="pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-indigo-300 bg-indigo-50/50" />
       )}
     </div>
   )

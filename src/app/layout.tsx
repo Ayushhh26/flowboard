@@ -1,36 +1,29 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { Providers } from "@/components/providers";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Plus_Jakarta_Sans } from 'next/font/google'
+import { Providers } from '@/components/providers'
+import './globals.css'
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: '--font-jakarta',
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: "FlowBoard",
-  description: "A collaborative Kanban workspace for managing tasks across teams.",
-};
+  title: 'FlowBoard',
+  description: 'A collaborative Kanban workspace for managing tasks across teams.',
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="h-full flex flex-col">
+    <html lang="en" className={`${plusJakarta.variable} h-full antialiased`}>
+      <body className={`${plusJakarta.className} flex h-full flex-col`}>
         <Providers>{children}</Providers>
       </body>
     </html>
-  );
+  )
 }

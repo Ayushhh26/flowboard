@@ -59,11 +59,11 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                 animate={{ x: 0 }}
                 exit={{ x: '100%' }}
                 transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="fixed right-0 top-0 z-50 flex h-full w-[480px] max-w-full flex-col bg-white shadow-xl"
+                className="fixed right-0 top-0 z-50 flex h-full w-[480px] max-w-full flex-col border-l border-slate-200 bg-white shadow-2xl"
               >
                 <Dialog.Title className="sr-only">{card.title}</Dialog.Title>
 
-                <div className="flex items-start gap-2 border-b border-gray-100 px-5 py-4">
+                <div className="flex items-start gap-2 border-b border-slate-100 bg-slate-50/50 px-5 py-4">
                   <div className="flex-1">
                     {canEdit ? (
                       <InlineEdit
@@ -71,14 +71,14 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                         onSave={(t) => {
                           if (t !== card.title) updateCard({ cardId: card.id, title: t })
                         }}
-                        className="text-base font-semibold text-gray-900"
+                        className="text-base font-semibold text-slate-900"
                         inputClassName="text-base font-semibold"
                       />
                     ) : (
-                      <h2 className="text-base font-semibold text-gray-900">{card.title}</h2>
+                      <h2 className="text-base font-semibold text-slate-900">{card.title}</h2>
                     )}
                   </div>
-                  <Dialog.Close className="mt-0.5 rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
+                  <Dialog.Close className="mt-0.5 cursor-pointer rounded-md p-1.5 text-slate-400 transition-colors duration-200 hover:bg-slate-100 hover:text-slate-600">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                       <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                     </svg>
@@ -99,7 +99,7 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                         }}
                       />
                     ) : card.priority === 'none' ? (
-                      <span className="text-sm text-gray-400">No priority</span>
+                      <span className="text-sm text-slate-500">No priority</span>
                     ) : (
                       <PriorityBadge priority={card.priority} />
                     )}
@@ -117,16 +117,16 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                         className={cn(inputClassName, 'resize-y')}
                       />
                     ) : (
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm leading-relaxed text-slate-600">
                         {card.description ?? (
-                          <span className="text-gray-400 italic">No description</span>
+                          <span className="text-slate-400 italic">No description</span>
                         )}
                       </p>
                     )}
                   </div>
 
-                  <div className="mt-auto border-t border-gray-100 pt-4">
-                    <p className="text-xs text-gray-400">
+                  <div className="mt-auto border-t border-slate-100 pt-4">
+                    <p className="text-xs text-slate-500">
                       Created{' '}
                       {new Date(card.createdAt).toLocaleDateString('en-US', {
                         month: 'short',
@@ -134,7 +134,7 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                         year: 'numeric',
                       })}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-slate-500">
                       Updated{' '}
                       {new Date(card.updatedAt).toLocaleDateString('en-US', {
                         month: 'short',

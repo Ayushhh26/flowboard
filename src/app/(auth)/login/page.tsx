@@ -1,17 +1,19 @@
 import Link from 'next/link'
 import { LoginForm } from '@/components/auth/LoginForm'
+import { linkClassName } from '@/lib/ui-colors'
+import { cn } from '@/lib/cn'
 
 export default function LoginPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold text-gray-900">Sign in</h1>
-        <p className="mt-1 text-sm text-gray-500">Welcome back to FlowBoard.</p>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-900">Sign in</h1>
+        <p className="mt-1 text-sm text-slate-600">Welcome back to FlowBoard.</p>
       </div>
       <LoginForm />
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-slate-500">
         No account?{' '}
-        <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-700">
+        <Link href="/signup" className={cn(linkClassName, 'text-xs')}>
           Sign up
         </Link>
       </p>

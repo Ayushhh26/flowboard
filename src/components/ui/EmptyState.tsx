@@ -1,3 +1,6 @@
+import { cn } from '@/lib/cn'
+import { linkClassName } from '@/lib/ui-colors'
+
 interface EmptyStateProps {
   title: string
   description?: string
@@ -7,14 +10,15 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, icon, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
-      {icon && <div className="text-gray-300">{icon}</div>}
-      <p className="text-sm font-medium text-gray-500">{title}</p>
-      {description && <p className="text-xs text-gray-400">{description}</p>}
+    <div className="flex flex-col items-center justify-center gap-2 py-10 text-center">
+      {icon && <div className="text-slate-300">{icon}</div>}
+      <p className="text-sm font-medium text-slate-600">{title}</p>
+      {description && <p className="max-w-xs text-xs text-slate-500">{description}</p>}
       {action && (
         <button
+          type="button"
           onClick={action.onClick}
-          className="mt-1 text-xs font-medium text-blue-500 hover:text-blue-600"
+          className={cn('mt-1 cursor-pointer text-xs', linkClassName)}
         >
           {action.label}
         </button>

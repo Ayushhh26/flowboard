@@ -7,10 +7,10 @@ export const PRIORITY_STYLES: Record<
 > = {
   none: {
     label: 'No priority',
-    badge: 'bg-gray-100 text-gray-600',
+    badge: 'bg-slate-100 text-slate-600',
     border: 'border-l-transparent',
-    dot: 'bg-gray-300',
-    selected: 'border-gray-300 bg-gray-50 text-gray-700 ring-1 ring-gray-200',
+    dot: 'bg-slate-300',
+    selected: 'border-slate-300 bg-slate-50 text-slate-700 ring-1 ring-slate-200',
   },
   low: {
     label: 'Low',
@@ -57,7 +57,7 @@ export const ROLE_STYLES: Record<
   },
   editor: {
     label: 'Editor',
-    className: 'bg-sky-50 text-sky-700 ring-1 ring-sky-200/60',
+    className: 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/60',
   },
   viewer: {
     label: 'Viewer',
@@ -71,7 +71,19 @@ export const ROLE_STYLES: Record<
 
 /** Shared form control styles */
 export const inputClassName =
-  'w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100'
+  'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 transition-colors duration-200 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100'
 
 export const fieldLabelClassName =
-  'text-xs font-medium uppercase tracking-wide text-gray-500'
+  'text-xs font-semibold uppercase tracking-wide text-slate-500'
+
+export const cardSurfaceClassName =
+  'rounded-xl border border-slate-200/80 bg-white shadow-sm transition-[box-shadow,border-color] duration-200'
+
+export const interactiveCardClassName =
+  'block cursor-pointer rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-colors duration-200 hover:border-indigo-200 hover:bg-indigo-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2'
+
+export const linkClassName =
+  'font-medium text-indigo-600 transition-colors duration-200 hover:text-indigo-700'
+
+export const focusRingClassName =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2'

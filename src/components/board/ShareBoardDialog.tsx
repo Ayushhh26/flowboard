@@ -64,18 +64,18 @@ export function ShareBoardDialog({ boardId, open, onOpenChange }: ShareBoardDial
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
                 transition={{ duration: 0.15, ease: 'easeOut' }}
-                className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-gray-200 bg-white shadow-xl"
+                className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white shadow-xl"
               >
-                <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4">
+                <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
                   <div>
-                    <Dialog.Title className="text-base font-semibold text-gray-900">
+                    <Dialog.Title className="text-base font-semibold text-slate-900">
                       Share this board
                     </Dialog.Title>
-                    <Dialog.Description className="mt-0.5 text-xs text-gray-500">
+                    <Dialog.Description className="mt-0.5 text-xs text-slate-600">
                       Add collaborators by email. Editors can move cards; viewers are read-only.
                     </Dialog.Description>
                   </div>
-                  <Dialog.Close className="rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+                  <Dialog.Close className="cursor-pointer rounded-md p-1 text-slate-400 transition-colors duration-200 hover:bg-slate-100 hover:text-slate-600">
                     <span className="sr-only">Close</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M18 6 6 18M6 6l12 12" />
@@ -107,16 +107,16 @@ export function ShareBoardDialog({ boardId, open, onOpenChange }: ShareBoardDial
                   </div>
                 </form>
 
-                <div className="border-t border-gray-100 px-5 py-3">
+                <div className="border-t border-slate-100 px-5 py-3">
                   <h3 className={fieldLabelClassName}>Members</h3>
                   <ul className="mt-2 flex flex-col gap-2">
-                    {isLoading && <li className="text-xs text-gray-400">Loading…</li>}
+                    {isLoading && <li className="text-xs text-slate-500">Loading…</li>}
                     {data?.members.map((m) => (
                       <li key={m.userId} className="flex items-center gap-3">
                         <Avatar name={m.name} src={m.avatarUrl} size="sm" />
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium text-gray-900">{m.name}</p>
-                          <p className="truncate text-xs text-gray-500">{m.email}</p>
+                          <p className="truncate text-sm font-medium text-slate-900">{m.name}</p>
+                          <p className="truncate text-xs text-slate-500">{m.email}</p>
                         </div>
                         {m.role === 'owner' ? (
                           <RoleBadge role="owner" />
@@ -151,13 +151,13 @@ export function ShareBoardDialog({ boardId, open, onOpenChange }: ShareBoardDial
                 </div>
 
                 {data && data.invitations.length > 0 && (
-                  <div className="border-t border-gray-100 px-5 py-3 pb-5">
+                  <div className="border-t border-slate-100 px-5 py-3 pb-5">
                     <h3 className={fieldLabelClassName}>Pending invitations</h3>
                     <ul className="mt-2 flex flex-col gap-2">
                       {data.invitations.map((inv) => (
                         <li key={inv.id} className="flex items-center gap-3">
                           <div className="min-w-0 flex-1">
-                            <p className="truncate text-sm text-gray-700">{inv.email}</p>
+                            <p className="truncate text-sm text-slate-700">{inv.email}</p>
                             <div className="mt-0.5 flex items-center gap-1.5">
                               <RoleBadge role="pending" />
                               <RoleBadge role={inv.role} />

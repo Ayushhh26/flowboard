@@ -49,7 +49,7 @@ export function AddCardInput({ columnId, boardId }: AddCardInputProps) {
       <div className="px-2 pb-2">
         <button
           onClick={open}
-          className="w-full rounded-lg px-2 py-1.5 text-left text-sm text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600"
+          className="w-full cursor-pointer rounded-lg px-2 py-1.5 text-left text-sm text-slate-500 transition-colors duration-200 hover:bg-slate-50 hover:text-indigo-600"
         >
           + Add a card
         </button>
@@ -58,7 +58,7 @@ export function AddCardInput({ columnId, boardId }: AddCardInputProps) {
   }
 
   return (
-    <div className={cn('border-t border-gray-100 p-2 flex flex-col gap-2')}>
+    <div className={cn('flex flex-col gap-2 border-t border-slate-100 p-2')}>
       <textarea
         ref={textareaRef}
         value={title}

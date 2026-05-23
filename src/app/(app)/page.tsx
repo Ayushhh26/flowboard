@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { UserMenu } from '@/components/ui/UserMenu'
 import { CreateBoardButton } from '@/components/board/CreateBoardButton'
 import { RoleBadge } from '@/components/ui/RoleBadge'
+import { interactiveCardClassName } from '@/lib/ui-colors'
 
 type OwnedBoard = {
   id: string
@@ -14,6 +15,14 @@ type OwnedBoard = {
 type SharedBoard = OwnedBoard & {
   ownerName: string
   role: 'editor' | 'viewer'
+}
+
+function formatUpdatedAt(date: Date) {
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
 }
 
 export default async function BoardsIndexPage() {
@@ -53,16 +62,16 @@ export default async function BoardsIndexPage() {
   const hasAny = owned.length + shared.length > 0
 
   return (
-    <div className="flex h-full flex-col bg-slate-100">
-      <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-        <h1 className="text-xl font-semibold text-gray-900">Your boards</h1>
+    <div className="flex h-full flex-col bg-slate-50">
+      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-4">
+        <h1 className="text-xl font-semibold text-slate-900">Your boards</h1>
         <UserMenu name={user.name} email={user.email} avatarUrl={user.avatarUrl} />
       </header>
       <main className="min-h-0 flex-1 overflow-y-auto p-6">
         {!hasAny ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-            <p className="text-sm font-medium text-gray-600">No boards yet</p>
-            <p className="max-w-sm text-xs text-gray-500">
+            <p className="text-sm font-medium text-slate-600">No boards yet</p>
+            <p className="max-w-sm text-xs text-slate-500">
               Create your first board to start tracking work, or ask someone to invite you.
             </p>
             <CreateBoardButton />
@@ -72,26 +81,23 @@ export default async function BoardsIndexPage() {
             <section>
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <h2 className="text-sm font-semibold text-gray-900">Your boards</h2>
-                  <p className="text-xs text-gray-500">
+                  <h2 className="text-sm font-semibold text-slate-900">Your boards</h2>
+                  <p className="text-xs text-slate-500">
                     {owned.length} board{owned.length === 1 ? '' : 's'}
                   </p>
                 </div>
                 <CreateBoardButton />
               </div>
               {owned.length === 0 ? (
-                <p className="text-xs text-gray-400">You haven&apos;t created any boards yet.</p>
+                <p className="text-xs text-slate-500">You haven&apos;t created any boards yet.</p>
               ) : (
                 <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {owned.map((board) => (
                     <li key={board.id}>
-                      <Link
-                        href={`/board/${board.id}`}
-                        className="block rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-blue-300 hover:bg-blue-50/50"
-                      >
-                        <p className="truncate font-medium text-gray-900">{board.name}</p>
-                        <p className="mt-1 text-xs text-gray-500">
-                          Updated {new Date(board.updatedAt).toLocaleDateString()}
+                      <Link href={`/board/${board.id}`} className={interactiveCardClassName}>
+                        <p className="truncate font-medium text-slate-900">{board.name}</p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          Updated {formatUpdatedAt(board.updatedAt)}
                         </p>
                       </Link>
                     </li>
@@ -103,24 +109,21 @@ export default async function BoardsIndexPage() {
             {shared.length > 0 && (
               <section>
                 <div className="mb-3">
-                  <h2 className="text-sm font-semibold text-gray-900">Shared with you</h2>
-                  <p className="text-xs text-gray-500">
+                  <h2 className="text-sm font-semibold text-slate-900">Shared with you</h2>
+                  <p className="text-xs text-slate-500">
                     {shared.length} board{shared.length === 1 ? '' : 's'}
                   </p>
                 </div>
                 <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {shared.map((board) => (
                     <li key={board.id}>
-                      <Link
-                        href={`/board/${board.id}`}
-                        className="block rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-blue-300 hover:bg-blue-50/50"
-                      >
+                      <Link href={`/board/${board.id}`} className={interactiveCardClassName}>
                         <div className="flex items-start justify-between gap-2">
-                          <p className="truncate font-medium text-gray-900">{board.name}</p>
+                          <p className="truncate font-medium text-slate-900">{board.name}</p>
                           <RoleBadge role={board.role} />
                         </div>
-                        <p className="mt-1 text-xs text-gray-500">
-                          By {board.ownerName} · Updated {new Date(board.updatedAt).toLocaleDateString()}
+                        <p className="mt-1 text-xs text-slate-500">
+                          By {board.ownerName} · Updated {formatUpdatedAt(board.updatedAt)}
                         </p>
                       </Link>
                     </li>
