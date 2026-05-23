@@ -49,12 +49,11 @@ export function CreateBoardButton({ variant = 'primary' }: { variant?: 'primary'
   }
 
   return (
-    <>
-      <Button variant={variant} onClick={() => setOpen(true)}>
-        Create board
-      </Button>
-      <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-        <AnimatePresence>
+    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
+      <Dialog.Trigger asChild>
+        <Button variant={variant}>Create board</Button>
+      </Dialog.Trigger>
+      <AnimatePresence>
           {open && (
             <Dialog.Portal forceMount>
               <Dialog.Overlay asChild>
@@ -111,8 +110,7 @@ export function CreateBoardButton({ variant = 'primary' }: { variant?: 'primary'
               </Dialog.Content>
             </Dialog.Portal>
           )}
-        </AnimatePresence>
-      </Dialog.Root>
-    </>
+      </AnimatePresence>
+    </Dialog.Root>
   )
 }
