@@ -12,7 +12,9 @@ import {
   useRevokeInvitation,
   useUpdateMemberRole,
 } from '@/hooks/useBoardMembers'
+import { RoleBadge } from '@/components/ui/RoleBadge'
 import { cn } from '@/lib/cn'
+import { fieldLabelClassName, inputClassName } from '@/lib/ui-colors'
 
 interface ShareBoardDialogProps {
   boardId: string
@@ -88,13 +90,13 @@ export function ShareBoardDialog({ boardId, open, onOpenChange }: ShareBoardDial
                       placeholder="collaborator@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="flex-1 rounded-md border border-gray-200 px-3 py-1.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                      className={cn(inputClassName, 'flex-1 py-1.5')}
                       autoComplete="off"
                     />
                     <select
                       value={role}
                       onChange={(e) => setRole(e.target.value as 'editor' | 'viewer')}
-                      className="rounded-md border border-gray-200 px-2 py-1.5 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                      className={cn(inputClassName, 'w-auto py-1.5')}
                     >
                       <option value="editor">Editor</option>
                       <option value="viewer">Viewer</option>
@@ -106,9 +108,7 @@ export function ShareBoardDialog({ boardId, open, onOpenChange }: ShareBoardDial
                 </form>
 
                 <div className="border-t border-gray-100 px-5 py-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    Members
-                  </h3>
+                  <h3 className={fieldLabelClassName}>Members</h3>
                   <ul className="mt-2 flex flex-col gap-2">
                     {isLoading && <li className="text-xs text-gray-400">Loading…</li>}
                     {data?.members.map((m) => (
@@ -119,9 +119,7 @@ export function ShareBoardDialog({ boardId, open, onOpenChange }: ShareBoardDial
                           <p className="truncate text-xs text-gray-500">{m.email}</p>
                         </div>
                         {m.role === 'owner' ? (
-                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                            Owner
-                          </span>
+                          <RoleBadge role="owner" />
                         ) : (
                           <>
                             <select
@@ -129,7 +127,7 @@ export function ShareBoardDialog({ boardId, open, onOpenChange }: ShareBoardDial
                               onChange={(e) =>
                                 updateRole.mutate({ userId: m.userId, role: e.target.value as 'editor' | 'viewer' })
                               }
-                              className="rounded-md border border-gray-200 px-2 py-1 text-xs"
+                              className={cn(inputClassName, 'w-auto py-1 text-xs')}
                               disabled={updateRole.isPending}
                             >
                               <option value="editor">Editor</option>
@@ -154,17 +152,16 @@ export function ShareBoardDialog({ boardId, open, onOpenChange }: ShareBoardDial
 
                 {data && data.invitations.length > 0 && (
                   <div className="border-t border-gray-100 px-5 py-3 pb-5">
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Pending invitations
-                    </h3>
+                    <h3 className={fieldLabelClassName}>Pending invitations</h3>
                     <ul className="mt-2 flex flex-col gap-2">
                       {data.invitations.map((inv) => (
                         <li key={inv.id} className="flex items-center gap-3">
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm text-gray-700">{inv.email}</p>
-                            <p className="text-xs text-gray-400">
-                              Pending · {inv.role}
-                            </p>
+                            <div className="mt-0.5 flex items-center gap-1.5">
+                              <RoleBadge role="pending" />
+                              <RoleBadge role={inv.role} />
+                            </div>
                           </div>
                           <button
                             onClick={() => revokeInvitation.mutate({ invitationId: inv.id })}

@@ -1,20 +1,13 @@
 'use client'
 
 import { cn } from '@/lib/cn'
+import { PRIORITY_STYLES } from '@/lib/ui-colors'
 import { PriorityBadge } from '@/components/ui/Badge'
 import type { Card } from '@/types/card'
 import { useDeleteCard } from '@/hooks/useDeleteCard'
 import { useDrawerStore } from '@/stores/useDrawerStore'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-
-const priorityBorderClass: Record<Card['priority'], string> = {
-  none: 'border-l-transparent',
-  low: 'border-l-blue-400',
-  medium: 'border-l-yellow-400',
-  high: 'border-l-orange-500',
-  urgent: 'border-l-red-500',
-}
 
 interface CardItemContentProps {
   card: Card
@@ -45,7 +38,7 @@ export function CardItemContent({
         'group relative rounded-lg border border-gray-200 border-l-[3px] bg-white p-3',
         canEdit ? 'cursor-grab' : 'cursor-pointer',
         'transition-shadow duration-150 hover:shadow-md',
-        priorityBorderClass[card.priority],
+        PRIORITY_STYLES[card.priority].border,
         className
       )}
     >

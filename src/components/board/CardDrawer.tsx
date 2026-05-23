@@ -8,16 +8,9 @@ import { useBoard } from '@/hooks/useBoard'
 import { useUpdateCard } from '@/hooks/useUpdateCard'
 import { InlineEdit } from '@/components/ui/InlineEdit'
 import { PriorityBadge } from '@/components/ui/Badge'
+import { PrioritySelect } from '@/components/ui/PrioritySelect'
 import { cn } from '@/lib/cn'
-import type { Priority } from '@/types/card'
-
-const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
-  { value: 'none', label: 'No priority' },
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'urgent', label: 'Urgent' },
-]
+import { fieldLabelClassName, inputClassName } from '@/lib/ui-colors'
 
 interface CardDrawerProps {
   boardId: string
@@ -95,26 +88,16 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
 
                 <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-5 py-4">
                   <div>
-                    <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">
-                      Priority
-                    </p>
+                    <p className={cn('mb-2', fieldLabelClassName)}>Priority</p>
                     {canEdit ? (
-                      <select
+                      <PrioritySelect
                         value={card.priority}
-                        onChange={(e) => {
-                          const priority = e.target.value as Priority
+                        onChange={(priority) => {
                           if (priority !== card.priority) {
                             updateCard({ cardId: card.id, priority })
                           }
                         }}
-                        className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                      >
-                        {PRIORITY_OPTIONS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                      </select>
+                      />
                     ) : card.priority === 'none' ? (
                       <span className="text-sm text-gray-400">No priority</span>
                     ) : (
@@ -123,9 +106,7 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                   </div>
 
                   <div>
-                    <p className="mb-1.5 text-xs font-medium uppercase tracking-wide text-gray-400">
-                      Description
-                    </p>
+                    <p className={cn('mb-2', fieldLabelClassName)}>Description</p>
                     {canEdit ? (
                       <textarea
                         value={descriptionDraft}
@@ -133,10 +114,7 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                         onBlur={saveDescription}
                         placeholder="Add a description..."
                         rows={6}
-                        className={cn(
-                          'w-full resize-y rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900',
-                          'placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100'
-                        )}
+                        className={cn(inputClassName, 'resize-y')}
                       />
                     ) : (
                       <p className="text-sm text-gray-600">

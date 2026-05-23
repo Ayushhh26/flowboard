@@ -6,6 +6,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/Button'
+import { inputClassName } from '@/lib/ui-colors'
 import type { ApiResponse } from '@/types/api'
 
 export function CreateBoardButton({ variant = 'primary' }: { variant?: 'primary' | 'secondary' }) {
@@ -89,7 +90,7 @@ export function CreateBoardButton({ variant = 'primary' }: { variant?: 'primary'
                         placeholder="e.g. Sprint planning"
                         autoFocus
                         maxLength={200}
-                        className="rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                        className={inputClassName}
                       />
                     </label>
                     <div className="flex justify-end gap-2">

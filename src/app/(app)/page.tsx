@@ -3,6 +3,7 @@ import { getCurrentUser } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { UserMenu } from '@/components/ui/UserMenu'
 import { CreateBoardButton } from '@/components/board/CreateBoardButton'
+import { RoleBadge } from '@/components/ui/RoleBadge'
 
 type OwnedBoard = {
   id: string
@@ -116,9 +117,7 @@ export default async function BoardsIndexPage() {
                       >
                         <div className="flex items-start justify-between gap-2">
                           <p className="truncate font-medium text-gray-900">{board.name}</p>
-                          <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-500">
-                            {board.role}
-                          </span>
+                          <RoleBadge role={board.role} />
                         </div>
                         <p className="mt-1 text-xs text-gray-500">
                           By {board.ownerName} · Updated {new Date(board.updatedAt).toLocaleDateString()}

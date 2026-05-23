@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
+import { inputClassName } from '@/lib/ui-colors'
 import { Button } from '@/components/ui/Button'
 import { useCreateCard } from '@/hooks/useCreateCard'
 
@@ -65,7 +66,7 @@ export function AddCardInput({ columnId, boardId }: AddCardInputProps) {
         onKeyDown={handleKeyDown}
         placeholder="Card title..."
         rows={2}
-        className="w-full resize-none rounded-lg border border-blue-400 p-2 text-sm text-gray-900 placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1"
+        className={cn(inputClassName, 'resize-none')}
       />
       <div className="flex items-center gap-2">
         <Button size="sm" onClick={submit} isLoading={isPending}>

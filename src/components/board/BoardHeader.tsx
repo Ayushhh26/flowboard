@@ -6,6 +6,7 @@ import { useBoard } from '@/hooks/useBoard'
 import { useUpdateBoard } from '@/hooks/useUpdateBoard'
 import { UserMenu } from '@/components/ui/UserMenu'
 import { InlineEdit } from '@/components/ui/InlineEdit'
+import { RoleBadge } from '@/components/ui/RoleBadge'
 import { ShareButton } from './ShareButton'
 import type { ViewerRole } from '@/types/board'
 
@@ -33,19 +34,25 @@ export function BoardHeader({ name: initialName, boardId, viewerRole, user }: Bo
 
   return (
     <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-      {isOwner ? (
-        <InlineEdit
-          value={displayName}
-          onSave={(next) => {
-            if (next !== displayName) updateBoard({ name: next })
-          }}
-          placeholder="Untitled board"
-          className="text-2xl font-semibold text-gray-900"
-          inputClassName="text-2xl font-semibold"
-        />
-      ) : (
-        <h1 className="text-2xl font-semibold text-gray-900">{displayName}</h1>
-      )}
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        {isOwner ? (
+          <InlineEdit
+            value={displayName}
+            onSave={(next) => {
+              if (next !== displayName) updateBoard({ name: next })
+            }}
+            placeholder="Untitled board"
+            className="text-2xl font-semibold text-gray-900"
+            inputClassName="text-2xl font-semibold"
+          />
+        ) : (
+          <h1 className="truncate text-2xl font-semibold text-gray-900">{displayName}</h1>
+        )}
+        {!isOwner && <RoleBadge role={viewerRole} />}
+        {viewerRole === 'viewer' && (
+          <span className="hidden text-sm text-gray-500 sm:inline">Read-only</span>
+        )}
+      </div>
       <div className="flex items-center gap-3">
         {canEdit && process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && (
           <button

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
+import { inputClassName } from '@/lib/ui-colors'
 
 export function SignupForm() {
   const router = useRouter()
@@ -47,7 +48,7 @@ export function SignupForm() {
           autoComplete="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          className={inputClassName}
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
@@ -58,7 +59,7 @@ export function SignupForm() {
           autoComplete="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          className={inputClassName}
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
@@ -70,7 +71,7 @@ export function SignupForm() {
           autoComplete="new-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-md border border-gray-200 px-3 py-2 text-sm focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          className={inputClassName}
         />
       </label>
       <Button type="submit" variant="primary" isLoading={submitting} className="mt-2">
