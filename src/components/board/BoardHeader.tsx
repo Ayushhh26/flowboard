@@ -11,6 +11,7 @@ import { RoleBadge } from '@/components/ui/RoleBadge'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { displayTitleClassName, focusRingClassName } from '@/lib/ui-colors'
 import { ShareButton } from './ShareButton'
+import { SmartAddButton } from './SmartAddButton'
 import type { ViewerRole } from '@/types/board'
 
 interface BoardHeaderUser {
@@ -86,6 +87,7 @@ export function BoardHeader({ name: initialName, boardId, viewerRole, user }: Bo
           </button>
         )}
         <ThemeToggle />
+        {canEdit && <SmartAddButton boardId={boardId} />}
         {isOwner && <ShareButton boardId={boardId} />}
         {user && <UserMenu name={user.name} email={user.email} avatarUrl={user.avatarUrl} />}
       </div>
