@@ -58,12 +58,12 @@ export function DeleteColumnDialog({
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.96 }}
-                className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-slate-200 bg-white p-5 shadow-xl"
+                className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl border border-border bg-surface p-5 shadow-xl"
               >
-                <Dialog.Title className="text-base font-semibold text-slate-900">
+                <Dialog.Title className="text-base font-semibold text-foreground">
                   Delete &ldquo;{column.title}&rdquo;?
                 </Dialog.Title>
-                <Dialog.Description className="mt-2 text-sm text-slate-600">
+                <Dialog.Description className="mt-2 text-sm text-muted">
                   {hasCards
                     ? `This column has ${column.cards.length} task${column.cards.length === 1 ? '' : 's'}. Choose what to do with them.`
                     : 'This column is empty and will be permanently deleted.'}
@@ -79,7 +79,7 @@ export function DeleteColumnDialog({
                         onChange={() => setDeleteCards(false)}
                         className="mt-1"
                       />
-                      <span className="text-sm text-slate-700">
+                      <span className="text-sm text-foreground">
                         Move tasks to another column
                         {!deleteCards && otherColumns.length > 0 && (
                           <select
@@ -104,7 +104,7 @@ export function DeleteColumnDialog({
                         onChange={() => setDeleteCards(true)}
                         className="mt-1"
                       />
-                      <span className="text-sm text-slate-700">Delete all tasks in this column</span>
+                      <span className="text-sm text-foreground">Delete all tasks in this column</span>
                     </label>
                   </div>
                 )}

@@ -29,7 +29,7 @@ export function PrioritySelect({ value, onChange, disabled }: PrioritySelectProp
               'disabled:cursor-not-allowed disabled:opacity-50',
               isSelected
                 ? styles.selected
-                : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                : 'border-border bg-surface text-muted hover:border-border hover:bg-background'
             )}
           >
             <span className={cn('h-2 w-2 shrink-0 rounded-full', styles.dot)} aria-hidden />

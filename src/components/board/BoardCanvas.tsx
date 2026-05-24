@@ -46,7 +46,7 @@ interface BoardCanvasProps {
 function BoardError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-      <p className="text-sm font-medium text-slate-600">Failed to load board</p>
+      <p className="text-sm font-medium text-muted">Failed to load board</p>
       <Button variant="primary" onClick={onRetry}>Retry</Button>
     </div>
   )
@@ -347,7 +347,7 @@ export function BoardCanvas({ boardId, viewerRole }: BoardCanvasProps) {
             action={{ label: 'Clear filters', onClick: () => useFilterStore.getState().clearAll() }}
           />
         ) : (
-          <div className="flex h-full items-stretch gap-4 overflow-x-auto bg-slate-100/80 p-4 sm:p-6 max-md:flex-col max-md:overflow-x-hidden">
+          <div className="flex h-full items-stretch gap-4 overflow-x-auto bg-canvas p-4 sm:p-6 max-md:flex-col max-md:overflow-x-hidden">
             <SortableContext items={sortedColumns.map((c) => c.id)} strategy={horizontalListSortingStrategy}>
               {columnsToRender.map((col) => (
                 <Column

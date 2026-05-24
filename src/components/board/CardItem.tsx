@@ -37,15 +37,15 @@ export function CardItemContent({
       style={style}
       onClick={onOpen}
       className={cn(
-        'group relative rounded-lg border border-slate-200 border-l-[3px] bg-white p-3 shadow-sm',
-        canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
-        'transition-[box-shadow,border-color] duration-200 hover:border-slate-300 hover:shadow-md',
-        isDragOverlay && 'shadow-lg ring-2 ring-indigo-200',
+        'group relative rounded-md border border-border border-l-[3px] bg-surface p-3 shadow-sm',
         PRIORITY_STYLES[card.priority].border,
+        canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer',
+        'transition-[border-color,box-shadow,background-color] duration-200 hover:border-foreground/20 hover:shadow-md',
+        isDragOverlay && 'shadow-lg ring-1 ring-accent',
         className
       )}
     >
-      <p className="pr-6 text-sm font-medium leading-snug text-slate-900">{card.title}</p>
+      <p className="pr-6 text-sm font-medium leading-snug text-foreground">{card.title}</p>
 
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
         <PriorityBadge priority={card.priority} />
@@ -71,7 +71,7 @@ export function CardItemContent({
             e.stopPropagation()
             deleteCard({ cardId: card.id })
           }}
-          className="absolute right-1 top-1 cursor-pointer rounded p-0.5 text-slate-400 opacity-0 transition-all duration-200 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+          className="absolute right-1 top-1 cursor-pointer rounded p-0.5 text-muted opacity-0 transition-all duration-200 hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
         >
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="4" cy="8" r="1.5" fill="currentColor" />
@@ -102,7 +102,7 @@ export function CardItem({ card, boardId, canEdit }: CardItemProps) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className="relative outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2"
+      className="relative outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       id={`card-${card.id}`}
       {...attributes}
       {...listeners}
@@ -116,7 +116,7 @@ export function CardItem({ card, boardId, canEdit }: CardItemProps) {
         canEdit={canEdit}
       />
       {isDragging && (
-        <div className="pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-indigo-300 bg-indigo-50/50" />
+        <div className="pointer-events-none absolute inset-0 rounded-lg border-2 border-dashed border-accent bg-accent-muted/50" />
       )}
     </div>
   )

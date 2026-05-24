@@ -1,28 +1,30 @@
 import Link from 'next/link'
 import { cn } from '@/lib/cn'
+import { focusRingClassName } from '@/lib/ui-colors'
 
 interface AppLogoProps {
   className?: string
   showWordmark?: boolean
-  variant?: 'default' | 'light'
+  variant?: 'default' | 'inverted'
 }
 
 export function AppLogo({ className, showWordmark = true, variant = 'default' }: AppLogoProps) {
-  const isLight = variant === 'light'
+  const isInverted = variant === 'inverted'
 
   return (
     <Link
       href="/"
       className={cn(
-        'inline-flex items-center gap-2 rounded-lg transition-opacity duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2',
-        isLight && 'focus-visible:ring-white focus-visible:ring-offset-indigo-600',
+        'inline-flex items-center gap-2 rounded-md transition-opacity duration-200 hover:opacity-90',
+        focusRingClassName,
+        isInverted && 'focus-visible:ring-offset-foreground',
         className
       )}
     >
       <span
         className={cn(
-          'flex h-8 w-8 items-center justify-center rounded-lg shadow-sm',
-          isLight ? 'bg-white/15 text-white ring-1 ring-white/20' : 'bg-indigo-600 text-white'
+          'flex h-8 w-8 items-center justify-center rounded-md',
+          isInverted ? 'bg-background/15 text-background ring-1 ring-background/20' : 'bg-accent text-white'
         )}
         aria-hidden
       >
@@ -36,11 +38,11 @@ export function AppLogo({ className, showWordmark = true, variant = 'default' }:
         <span
           className={cn(
             'text-base font-semibold tracking-tight',
-            isLight ? 'text-white' : 'text-slate-900'
+            isInverted ? 'text-background' : 'text-foreground'
           )}
         >
           Flow
-          <span className={isLight ? 'text-indigo-200' : 'text-indigo-600'}>Board</span>
+          <span className={isInverted ? 'text-background/70' : 'text-accent'}>Board</span>
         </span>
       )}
     </Link>

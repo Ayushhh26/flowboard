@@ -73,13 +73,13 @@ export function Column({ column, boardId, canEdit, allColumns, visibleCount, tot
           isDragging && 'opacity-50'
         )}
       >
-        <div className="flex items-center gap-1 border-b border-slate-100 px-2 py-3">
+        <div className="flex items-center gap-1 rounded-t-lg border-b border-border bg-foreground/[0.03] px-2 py-3 dark:bg-foreground/[0.06]">
           {canEdit && (
             <button
               type="button"
               aria-label={`Drag column ${column.title}`}
               className={cn(
-                'cursor-grab touch-none rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 active:cursor-grabbing',
+                'cursor-grab touch-none rounded p-1 text-muted hover:bg-foreground/5 hover:text-muted active:cursor-grabbing',
                 focusRingClassName
               )}
               {...attributes}
@@ -103,12 +103,12 @@ export function Column({ column, boardId, canEdit, allColumns, visibleCount, tot
                 onSave={(title) => {
                   if (title !== column.title) updateColumn({ columnId: column.id, title })
                 }}
-                className="text-xs font-semibold uppercase tracking-wide text-slate-600"
-                inputClassName="text-xs font-semibold uppercase"
+                className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted"
+                inputClassName="text-[11px] font-semibold uppercase tracking-[0.1em]"
               />
             ) : (
               <h2
-                className="truncate text-xs font-semibold uppercase tracking-wide text-slate-600"
+                className="truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-muted"
                 aria-label={`${column.title}, ${badgeCount} tasks`}
               >
                 {column.title}
@@ -120,12 +120,7 @@ export function Column({ column, boardId, canEdit, allColumns, visibleCount, tot
             <Tooltip content={filteredTooltip}>
               <span
                 aria-label={filteredTooltip}
-                className={cn(
-                  'cursor-default rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums',
-                  badgeCount > 0
-                    ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/60'
-                    : 'bg-slate-100 text-slate-500'
-                )}
+                className="cursor-default rounded-full bg-accent-muted px-2 py-0.5 text-xs font-semibold tabular-nums text-accent ring-1 ring-accent-ring/60"
               >
                 {badgeCount}
               </span>
@@ -133,10 +128,7 @@ export function Column({ column, boardId, canEdit, allColumns, visibleCount, tot
           ) : (
             <span
               className={cn(
-                'rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums',
-                badgeCount > 0
-                  ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/60'
-                  : 'bg-slate-100 text-slate-500'
+                'rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums bg-foreground/5 text-muted'
               )}
             >
               {badgeCount}
@@ -149,7 +141,7 @@ export function Column({ column, boardId, canEdit, allColumns, visibleCount, tot
               aria-label={`Delete column ${column.title}`}
               onClick={() => setDeleteOpen(true)}
               className={cn(
-                'rounded p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600',
+                'rounded p-1 text-muted transition-colors hover:bg-red-50 hover:text-red-600',
                 focusRingClassName
               )}
             >
@@ -169,7 +161,7 @@ export function Column({ column, boardId, canEdit, allColumns, visibleCount, tot
           ref={setDropRef}
           className={cn(
             'flex min-h-[8rem] flex-1 flex-col gap-2 overflow-y-auto p-2 transition-colors duration-200',
-            isOver && canEdit && 'rounded-lg bg-indigo-50/90 ring-1 ring-inset ring-indigo-200'
+            isOver && canEdit && 'rounded-lg bg-accent-muted/90 ring-1 ring-inset ring-accent-ring'
           )}
         >
           <SortableContext items={column.cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>

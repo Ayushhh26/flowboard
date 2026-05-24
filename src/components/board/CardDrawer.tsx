@@ -160,11 +160,11 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                   animate={{ x: 0 }}
                   exit={{ x: '100%' }}
                   transition={{ duration: 0.2, ease: 'easeOut' }}
-                  className="fixed right-0 top-0 z-50 flex h-full w-[480px] max-w-full flex-col border-l border-slate-200 bg-white shadow-2xl max-md:bottom-0 max-md:top-auto max-md:h-[85vh] max-md:w-full max-md:rounded-t-2xl max-md:border-l-0 max-md:border-t"
+                  className="fixed right-0 top-0 z-50 flex h-full w-[480px] max-w-full flex-col border-l border-border bg-surface shadow-2xl max-md:bottom-0 max-md:top-auto max-md:h-[85vh] max-md:w-full max-md:rounded-t-2xl max-md:border-l-0 max-md:border-t"
                 >
                   <Dialog.Title className="sr-only">{card.title}</Dialog.Title>
 
-                  <div className="flex items-start gap-2 border-b border-slate-100 bg-slate-50/50 px-5 py-4">
+                  <div className="flex items-start gap-2 border-b border-border bg-background/50 px-5 py-4">
                     <div className="flex-1">
                       {canEdit ? (
                         <InlineEdit
@@ -172,14 +172,14 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                           onSave={(t) => {
                             if (t !== card.title) updateCard({ cardId: card.id, title: t })
                           }}
-                          className="text-base font-semibold text-slate-900"
+                          className="text-base font-semibold text-foreground"
                           inputClassName="text-base font-semibold"
                         />
                       ) : (
-                        <h2 className="text-base font-semibold text-slate-900">{card.title}</h2>
+                        <h2 className="text-base font-semibold text-foreground">{card.title}</h2>
                       )}
                     </div>
-                    <Dialog.Close className="mt-0.5 cursor-pointer rounded-md p-1.5 text-slate-400 transition-colors duration-200 hover:bg-slate-100 hover:text-slate-600">
+                    <Dialog.Close className="mt-0.5 cursor-pointer rounded-md p-1.5 text-muted transition-colors duration-200 hover:bg-foreground/5 hover:text-muted">
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                         <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                       </svg>
@@ -203,7 +203,7 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                           ))}
                         </select>
                       ) : (
-                        <p className="text-sm text-slate-700">{currentColumn?.title}</p>
+                        <p className="text-sm text-foreground">{currentColumn?.title}</p>
                       )}
                     </div>
 
@@ -225,10 +225,10 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                       ) : card.assignee ? (
                         <div className="flex items-center gap-2">
                           <Avatar name={card.assignee.name} src={card.assignee.avatarUrl} size="sm" />
-                          <span className="text-sm text-slate-700">{card.assignee.name}</span>
+                          <span className="text-sm text-foreground">{card.assignee.name}</span>
                         </div>
                       ) : (
-                        <p className="text-sm text-slate-500">Unassigned</p>
+                        <p className="text-sm text-muted">Unassigned</p>
                       )}
                     </div>
 
@@ -248,7 +248,7 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-slate-500">No labels</p>
+                        <p className="text-sm text-muted">No labels</p>
                       )}
                     </div>
 
@@ -264,7 +264,7 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                           }}
                         />
                       ) : card.priority === 'none' ? (
-                        <span className="text-sm text-slate-500">No priority</span>
+                        <span className="text-sm text-muted">No priority</span>
                       ) : (
                         <PriorityBadge priority={card.priority} />
                       )}
@@ -282,24 +282,24 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                           className={cn(inputClassName, 'resize-y')}
                         />
                       ) : (
-                        <p className="text-sm leading-relaxed text-slate-600">
+                        <p className="text-sm leading-relaxed text-muted">
                           {card.description ?? (
-                            <span className="text-slate-400 italic">No description</span>
+                            <span className="text-muted italic">No description</span>
                           )}
                         </p>
                       )}
                     </div>
 
                     {canEdit && (
-                      <div className="border-t border-slate-100 pt-4">
+                      <div className="border-t border-border pt-4">
                         <Button variant="danger" size="sm" onClick={() => setDeleteOpen(true)}>
                           Delete task
                         </Button>
                       </div>
                     )}
 
-                    <div className="mt-auto border-t border-slate-100 pt-4">
-                      <p className="text-xs text-slate-500">
+                    <div className="mt-auto border-t border-border pt-4">
+                      <p className="text-xs text-muted">
                         Created{' '}
                         {new Date(card.createdAt).toLocaleDateString('en-US', {
                           month: 'short',
@@ -307,7 +307,7 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
                           year: 'numeric',
                         })}
                       </p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted">
                         Updated{' '}
                         {new Date(card.updatedAt).toLocaleDateString('en-US', {
                           month: 'short',

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
-import { inputClassName } from '@/lib/ui-colors'
+import { cardSurfaceClassName, inputClassName } from '@/lib/ui-colors'
 import { Button } from '@/components/ui/Button'
 import { useCreateColumn } from '@/hooks/useCreateColumn'
 
@@ -53,7 +53,7 @@ export function AddColumnButton({ boardId }: AddColumnButtonProps) {
       <button
         type="button"
         onClick={open}
-        className="flex h-full min-h-[12rem] w-72 shrink-0 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white/50 text-sm text-slate-500 transition-colors duration-200 hover:border-indigo-300 hover:bg-white hover:text-indigo-600 sm:w-80"
+        className="flex h-full min-h-[12rem] w-72 shrink-0 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-surface/80 text-sm font-medium text-muted shadow-sm transition-colors duration-200 hover:border-accent hover:bg-surface hover:text-accent sm:w-80"
       >
         + Add column
       </button>
@@ -61,7 +61,7 @@ export function AddColumnButton({ boardId }: AddColumnButtonProps) {
   }
 
   return (
-    <div className="flex w-72 shrink-0 flex-col gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:w-80">
+    <div className={cn('flex w-72 shrink-0 flex-col gap-2 rounded-lg border border-border bg-surface p-3 sm:w-80', cardSurfaceClassName)}>
       <input
         ref={inputRef}
         value={title}

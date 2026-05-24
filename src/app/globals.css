@@ -1,38 +1,59 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --background: #f5f5f7;
+  --foreground: #111111;
   --surface: #ffffff;
-  --border: #e2e8f0;
-  --muted: #475569;
-  --accent: #4f46e5;
-  --accent-hover: #4338ca;
-  --accent-muted: #eef2ff;
-  --accent-ring: #c7d2fe;
+  --canvas: #ececef;
+  --border: #dcdce0;
+  --muted: #5c5c66;
+  --accent: #c41e3a;
+  --accent-hover: #a81832;
+  --accent-muted: #fce8ec;
+  --accent-ring: #f5b8c4;
+  color-scheme: light;
+}
+
+.dark {
+  --background: #0c0c0e;
+  --foreground: #f4f4f5;
+  --surface: #18181b;
+  --canvas: #101012;
+  --border: #303036;
+  --muted: #a1a1aa;
+  --accent: #e85d6f;
+  --accent-hover: #f07080;
+  --accent-muted: #3d1a22;
+  --accent-ring: #6b2a36;
+  color-scheme: dark;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
+  --color-canvas: var(--canvas);
   --color-border: var(--border);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-muted: var(--accent-muted);
   --color-accent-ring: var(--accent-ring);
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
 }
 
 html {
-  color-scheme: light;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

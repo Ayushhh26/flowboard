@@ -64,7 +64,7 @@ export function LabelPicker({
               className={cn(
                 'cursor-pointer rounded-md transition-opacity duration-200',
                 focusRingClassName,
-                !selected && 'opacity-40 hover:opacity-70',
+                !selected && 'opacity-65 saturate-90 hover:opacity-100 hover:saturate-100',
                 disabled && 'cursor-not-allowed opacity-50'
               )}
               aria-pressed={selected}
@@ -100,7 +100,7 @@ export function LabelPicker({
           type="button"
           disabled={disabled}
           onClick={() => setShowCreate(true)}
-          className="text-xs text-indigo-600 hover:text-indigo-700 disabled:opacity-50"
+          className="text-xs text-accent hover:text-accent disabled:opacity-50"
         >
           + New label
         </button>

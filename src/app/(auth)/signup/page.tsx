@@ -7,11 +7,11 @@ export default function SignupPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-slate-900">Create your account</h1>
-        <p className="mt-1 text-sm text-slate-600">Get started with FlowBoard.</p>
+        <h1 className="font-display text-xl font-semibold tracking-tight text-foreground">Create your account</h1>
+        <p className="mt-1 text-sm text-muted">Get started with FlowBoard.</p>
       </div>
       <SignupForm />
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-muted">
         Already have an account?{' '}
         <Link href="/login" className={cn(linkClassName, 'text-xs')}>
           Sign in

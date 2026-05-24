@@ -12,7 +12,7 @@ interface MobileColumnTabsProps {
 
 export function MobileColumnTabs({ columns, activeColumnId, onSelect }: MobileColumnTabsProps) {
   return (
-    <div className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-2 py-2 md:hidden">
+    <div className="flex gap-1 overflow-x-auto border-b border-border bg-surface px-2 py-2 md:hidden">
       {columns.map((col) => (
         <button
           key={col.id}
@@ -22,8 +22,8 @@ export function MobileColumnTabs({ columns, activeColumnId, onSelect }: MobileCo
             'min-h-[44px] shrink-0 cursor-pointer rounded-lg px-3 py-2 text-sm font-medium transition-colors',
             focusRingClassName,
             activeColumnId === col.id
-              ? 'bg-indigo-600 text-white'
-              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              ? 'bg-accent text-white'
+              : 'bg-foreground/5 text-muted hover:bg-foreground/10'
           )}
           aria-current={activeColumnId === col.id ? 'true' : undefined}
         >

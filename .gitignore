@@ -48,3 +48,4 @@ next-env.d.ts
 /src/generated/prisma
 docs/PRD.md
 docs/prep-doc.md
+docs/superpowers/

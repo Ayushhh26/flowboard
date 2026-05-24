@@ -16,7 +16,7 @@ const bgPalette = [
   'bg-purple-200 text-purple-800',
   'bg-yellow-200 text-yellow-800',
   'bg-pink-200 text-pink-800',
-  'bg-indigo-200 text-indigo-800',
+  'bg-accent-ring text-accent',
 ]
 
 function getInitials(name: string): string {

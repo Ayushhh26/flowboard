@@ -24,10 +24,10 @@ export function Tooltip({ content, children, side = 'top' }: TooltipProps) {
         <TooltipPrimitive.Content
           side={side}
           sideOffset={6}
-          className="z-50 rounded-md bg-slate-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-lg"
+          className="z-50 rounded-md bg-foreground px-2.5 py-1.5 text-xs font-medium text-white shadow-lg"
         >
           {content}
-          <TooltipPrimitive.Arrow className="fill-slate-900" />
+          <TooltipPrimitive.Arrow className="fill-foreground" />
         </TooltipPrimitive.Content>
       </TooltipPrimitive.Portal>
     </TooltipPrimitive.Root>

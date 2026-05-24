@@ -72,17 +72,17 @@ export function CreateBoardButton({ variant = 'primary' }: { variant?: 'primary'
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.96 }}
                   transition={{ duration: 0.15, ease: 'easeOut' }}
-                  className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-6 shadow-xl"
+                  className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-surface p-6 shadow-xl"
                 >
-                  <Dialog.Title className="text-base font-semibold text-slate-900">
+                  <Dialog.Title className="text-base font-semibold text-foreground">
                     Create a board
                   </Dialog.Title>
-                  <Dialog.Description className="mt-1 text-sm text-slate-600">
+                  <Dialog.Description className="mt-1 text-sm text-muted">
                     Give your board a name. You can change it later from the board header.
                   </Dialog.Description>
                   <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
                     <label className="flex flex-col gap-1.5 text-sm">
-                      <span className="font-medium text-slate-700">Board name</span>
+                      <span className="font-medium text-foreground">Board name</span>
                       <input
                         type="text"
                         value={name}
