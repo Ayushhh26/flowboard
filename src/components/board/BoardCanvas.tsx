@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useMemo, useEffect } from 'react'
+import { useState, useRef, useMemo, useSyncExternalStore } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -56,13 +56,33 @@ function sortColumns(columns: ColumnType[]) {
   return [...columns].sort((a, b) => a.orderIndex - b.orderIndex)
 }
 
+const mobileMq = '(max-width: 767px)'
+
+function subscribeToMobileLayout(onChange: () => void) {
+  const mq = window.matchMedia(mobileMq)
+  mq.addEventListener('change', onChange)
+  return () => mq.removeEventListener('change', onChange)
+}
+
+function getMobileSnapshot() {
+  return window.matchMedia(mobileMq).matches
+}
+
+function getServerMobileSnapshot() {
+  return false
+}
+
 export function BoardCanvas({ boardId, viewerRole }: BoardCanvasProps) {
   const { data: board, isLoading, isError, refetch } = useBoard(boardId)
   const queryClient = useQueryClient()
   useBoardRealtime(boardId)
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [mobileColumnId, setMobileColumnId] = useState<string | null>(null)
-  const [isMobile, setIsMobile] = useState(false)
+  const isMobile = useSyncExternalStore(
+    subscribeToMobileLayout,
+    getMobileSnapshot,
+    getServerMobileSnapshot
+  )
   const boardSnapshot = useRef<Board | null>(null)
   const lastOverId = useRef<string | null>(null)
 
@@ -87,14 +107,6 @@ export function BoardCanvas({ boardId, viewerRole }: BoardCanvasProps) {
     () => (board ? sortColumns(board.columns) : []),
     [board]
   )
-
-  useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)')
-    setIsMobile(mq.matches)
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [])
 
   const displayColumns = useMemo(() => {
     return sortedColumns.map((col) => {

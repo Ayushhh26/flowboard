@@ -157,7 +157,32 @@ npx playwright install chromium
 PLAYWRIGHT_BOARD_ID=<your-board-id> npm run test:e2e
 ```
 
-Tests assume you are already signed in via stored auth or a seeded session. Set `PLAYWRIGHT_BASE_URL` when targeting a deployed preview.
+Tests log in via `e2e/auth.setup.ts` using `PLAYWRIGHT_EMAIL` and `PLAYWRIGHT_PASSWORD`. Omit `PLAYWRIGHT_BOARD_ID` to use the first board on the home page. Set `PLAYWRIGHT_BASE_URL` when targeting a deployed preview.
+
+### CI (GitHub Actions)
+
+On every push to `main` and on pull requests, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs:
+
+1. `npm run lint`
+2. `npm run typecheck`
+3. `npm run build`
+4. Playwright E2E against a production build (`npm run start`)
+
+**Repository secrets** (Settings → Secrets and variables → Actions):
+
+| Secret | Required |
+|--------|----------|
+| `DATABASE_URL` | Yes |
+| `DIRECT_URL` | Yes |
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes |
+| `PLAYWRIGHT_EMAIL` | Yes — dedicated test user |
+| `PLAYWRIGHT_PASSWORD` | Yes |
+| `PLAYWRIGHT_BOARD_ID` | No — omit to auto-pick first board |
+
+Use the same Supabase project as production or a separate staging project. The test user must have at least one board (or create one before E2E runs).
+
+Vercel deployment is unchanged: merge to `main` still auto-deploys. CI is an extra quality gate before you merge.
 
 ---
 

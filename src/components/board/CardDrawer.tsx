@@ -46,8 +46,12 @@ export function CardDrawer({ boardId, canEdit }: CardDrawerProps) {
   const [descriptionDraft, setDescriptionDraft] = useState('')
   const [deleteOpen, setDeleteOpen] = useState(false)
 
+  // Reset draft when switching cards (remount would lose in-progress edits on the same card).
   useEffect(() => {
-    if (card) setDescriptionDraft(card.description ?? '')
+    if (card) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync description when open card changes
+      setDescriptionDraft(card.description ?? '')
+    }
   }, [card?.id, card?.description])
 
   function saveDescription() {
