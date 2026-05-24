@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { beginCardMutation, endCardMutation } from '@/lib/mutationTracker'
 import type { Board } from '@/types/board'
-import type { Card, Priority } from '@/types/card'
+import type { Card, Label, Priority, User } from '@/types/card'
 import type { ApiResponse } from '@/types/api'
 
 interface UpdateCardVars {
@@ -10,17 +10,21 @@ interface UpdateCardVars {
   title?: string
   description?: string | null
   priority?: Priority
+  assigneeId?: string | null
+  assignee?: User | null
+  labelIds?: string[]
+  labels?: Label[]
 }
 
 export function useUpdateCard(boardId: string) {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ cardId, ...updates }: UpdateCardVars) => {
+    mutationFn: async ({ cardId, assignee: _assignee, labels: _labels, ...payload }: UpdateCardVars & { cardId: string }) => {
       const res = await fetch(`/api/cards/${cardId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
+        body: JSON.stringify(payload),
       })
       const json: ApiResponse<Card> = await res.json()
       if (json.error) throw new Error(json.error.message)

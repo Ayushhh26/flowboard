@@ -20,6 +20,7 @@ export async function GET(
   const board = await db.board.findFirst({
     where: { id, ...boardReadAccess(user.id) },
     include: {
+      labels: { orderBy: { name: 'asc' } },
       columns: {
         orderBy: { orderIndex: 'asc' },
         include: {

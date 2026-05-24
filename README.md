@@ -141,9 +141,28 @@ Required env vars:
 
 ---
 
+## Deployment (Vercel + Supabase)
+
+1. **Supabase** — create a project, run `npx prisma migrate deploy` against `DIRECT_URL`, and copy API keys into Vercel env vars.
+2. **Vercel** — import the repo, set build command `npm run build`, and add all env vars from the table above.
+3. **Auth** — add your Vercel domain to Supabase → Authentication → URL Configuration (Site URL + redirect URLs).
+4. **Verify** — sign up, create a board, drag a card across columns, and confirm realtime sync in a second tab.
+
+Set `NEXT_PUBLIC_DEMO_MODE=true` in preview/production if you want the failure-injection toggle visible to reviewers.
+
+### E2E tests (Playwright)
+
+```bash
+npx playwright install chromium
+PLAYWRIGHT_BOARD_ID=<your-board-id> npm run test:e2e
+```
+
+Tests assume you are already signed in via stored auth or a seeded session. Set `PLAYWRIGHT_BASE_URL` when targeting a deployed preview.
+
+---
+
 ## What's next
 
-- **Multi-board sharing** — invite collaborators by email, `BoardMember` table with roles, RLS policy extended to include members. The real-time infrastructure is already in place; sharing turns multi-tab sync into true multi-user sync.
 - **AI-assisted card creation** — suggest priority and description from a title using the Claude API
-- **Keyboard DnD + accessibility audit** — keyboard navigation for drag, axe / Lighthouse pass on critical flows
-- **Playwright E2E tests** for the drag-and-drop and optimistic rollback flows
+- **Virtualization** for boards with hundreds of cards per column
+- **Command palette** for power-user navigation

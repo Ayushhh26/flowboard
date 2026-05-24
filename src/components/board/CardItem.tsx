@@ -3,6 +3,8 @@
 import { cn } from '@/lib/cn'
 import { PRIORITY_STYLES } from '@/lib/ui-colors'
 import { PriorityBadge } from '@/components/ui/Badge'
+import { LabelChip } from '@/components/ui/LabelChip'
+import { Avatar } from '@/components/ui/Avatar'
 import type { Card } from '@/types/card'
 import { useDeleteCard } from '@/hooks/useDeleteCard'
 import { useDrawerStore } from '@/stores/useDrawerStore'
@@ -45,8 +47,19 @@ export function CardItemContent({
     >
       <p className="pr-6 text-sm font-medium leading-snug text-slate-900">{card.title}</p>
 
-      <div className="mt-2 flex items-center gap-1.5">
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
         <PriorityBadge priority={card.priority} />
+        {card.labels.slice(0, 3).map((label) => (
+          <LabelChip key={label.id} label={label} />
+        ))}
+        {card.assignee && (
+          <Avatar
+            name={card.assignee.name}
+            src={card.assignee.avatarUrl}
+            size="sm"
+            className="ml-auto"
+          />
+        )}
       </div>
 
       {!isDragOverlay && canEdit && (
@@ -80,6 +93,7 @@ interface CardItemProps {
 export function CardItem({ card, boardId, canEdit }: CardItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: card.id,
+    data: { type: 'card' },
     disabled: !canEdit,
   })
   const { openCard } = useDrawerStore()
@@ -88,9 +102,11 @@ export function CardItem({ card, boardId, canEdit }: CardItemProps) {
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className="relative"
+      className="relative outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2"
+      id={`card-${card.id}`}
       {...attributes}
       {...listeners}
+      tabIndex={0}
     >
       <CardItemContent
         card={card}

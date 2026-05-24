@@ -1,63 +1,205 @@
 'use client'
 
+import { useState } from 'react'
 import type { Column as ColumnType } from '@/types/column'
 import { cn } from '@/lib/cn'
-import { cardSurfaceClassName } from '@/lib/ui-colors'
+import { cardSurfaceClassName, focusRingClassName } from '@/lib/ui-colors'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { Tooltip } from '@/components/ui/Tooltip'
+import { InlineEdit } from '@/components/ui/InlineEdit'
 import { CardItem } from './CardItem'
 import { AddCardInput } from './AddCardInput'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { DeleteColumnDialog } from './DeleteColumnDialog'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { useDroppable } from '@dnd-kit/core'
+import { useUpdateColumn } from '@/hooks/useUpdateColumn'
 
 interface ColumnProps {
   column: ColumnType
   boardId: string
   canEdit: boolean
+  allColumns: ColumnType[]
+  visibleCount?: number
+  totalCount?: number
+  filtersActive?: boolean
 }
 
-export function Column({ column, boardId, canEdit }: ColumnProps) {
-  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: column.id, disabled: !canEdit })
+export function Column({ column, boardId, canEdit, allColumns, visibleCount, totalCount, filtersActive }: ColumnProps) {
+  const badgeCount = visibleCount ?? column.cards.length
+  const showFilteredTooltip =
+    !!filtersActive &&
+    totalCount !== undefined &&
+    visibleCount !== undefined &&
+    totalCount !== visibleCount
+  const filteredTooltip = `${badgeCount} of ${totalCount} tasks`
+
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setSortableRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: column.id,
+    data: { type: 'column' },
+    disabled: !canEdit,
+  })
+
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: column.id,
+    data: { type: 'column-drop' },
+    disabled: !canEdit,
+  })
+
+  const { mutate: updateColumn } = useUpdateColumn(boardId)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const otherColumns = allColumns.filter((c) => c.id !== column.id)
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
 
   return (
-    <div className={cn('flex w-72 shrink-0 flex-col sm:w-80', cardSurfaceClassName)}>
-      <div className="flex items-center justify-between border-b border-slate-100 px-3 py-3">
-        <h2
-          className="text-xs font-semibold uppercase tracking-wide text-slate-600"
-          aria-label={`${column.title}, ${column.cards.length} tasks`}
-        >
-          {column.title}
-        </h2>
-        <span
-          className={cn(
-            'rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums',
-            column.cards.length > 0
-              ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/60'
-              : 'bg-slate-100 text-slate-500'
-          )}
-        >
-          {column.cards.length}
-        </span>
-      </div>
-
+    <>
       <div
-        ref={setDropRef}
+        ref={setSortableRef}
+        style={style}
         className={cn(
-          'flex min-h-[8rem] flex-1 flex-col gap-2 overflow-y-auto p-2 transition-colors duration-200',
-          isOver && canEdit && 'rounded-lg bg-indigo-50/90 ring-1 ring-inset ring-indigo-200'
+          'flex w-72 shrink-0 flex-col sm:w-80',
+          cardSurfaceClassName,
+          isDragging && 'opacity-50'
         )}
       >
-        <SortableContext items={column.cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
-          {column.cards.length === 0 ? (
-            <EmptyState title="No tasks yet" description="Add a card to get started" />
-          ) : (
-            column.cards.map((card) => (
-              <CardItem key={card.id} card={card} boardId={boardId} canEdit={canEdit} />
-            ))
+        <div className="flex items-center gap-1 border-b border-slate-100 px-2 py-3">
+          {canEdit && (
+            <button
+              type="button"
+              aria-label={`Drag column ${column.title}`}
+              className={cn(
+                'cursor-grab touch-none rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 active:cursor-grabbing',
+                focusRingClassName
+              )}
+              {...attributes}
+              {...listeners}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <circle cx="5" cy="4" r="1.5" />
+                <circle cx="11" cy="4" r="1.5" />
+                <circle cx="5" cy="8" r="1.5" />
+                <circle cx="11" cy="8" r="1.5" />
+                <circle cx="5" cy="12" r="1.5" />
+                <circle cx="11" cy="12" r="1.5" />
+              </svg>
+            </button>
           )}
-        </SortableContext>
+
+          <div className="min-w-0 flex-1">
+            {canEdit ? (
+              <InlineEdit
+                value={column.title}
+                onSave={(title) => {
+                  if (title !== column.title) updateColumn({ columnId: column.id, title })
+                }}
+                className="text-xs font-semibold uppercase tracking-wide text-slate-600"
+                inputClassName="text-xs font-semibold uppercase"
+              />
+            ) : (
+              <h2
+                className="truncate text-xs font-semibold uppercase tracking-wide text-slate-600"
+                aria-label={`${column.title}, ${badgeCount} tasks`}
+              >
+                {column.title}
+              </h2>
+            )}
+          </div>
+
+          {showFilteredTooltip ? (
+            <Tooltip content={filteredTooltip}>
+              <span
+                aria-label={filteredTooltip}
+                className={cn(
+                  'cursor-default rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums',
+                  badgeCount > 0
+                    ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/60'
+                    : 'bg-slate-100 text-slate-500'
+                )}
+              >
+                {badgeCount}
+              </span>
+            </Tooltip>
+          ) : (
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums',
+                badgeCount > 0
+                  ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200/60'
+                  : 'bg-slate-100 text-slate-500'
+              )}
+            >
+              {badgeCount}
+            </span>
+          )}
+
+          {canEdit && (
+            <button
+              type="button"
+              aria-label={`Delete column ${column.title}`}
+              onClick={() => setDeleteOpen(true)}
+              className={cn(
+                'rounded p-1 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600',
+                focusRingClassName
+              )}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M4 4l8 8M12 4l-8 8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <div
+          ref={setDropRef}
+          className={cn(
+            'flex min-h-[8rem] flex-1 flex-col gap-2 overflow-y-auto p-2 transition-colors duration-200',
+            isOver && canEdit && 'rounded-lg bg-indigo-50/90 ring-1 ring-inset ring-indigo-200'
+          )}
+        >
+          <SortableContext items={column.cards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {column.cards.length === 0 ? (
+            <EmptyState
+              title={filtersActive && (totalCount ?? 0) > 0 ? 'No matching tasks' : 'No tasks yet'}
+              description={
+                filtersActive && (totalCount ?? 0) > 0
+                  ? 'Clear filters to see hidden tasks'
+                  : 'Add a card to get started'
+              }
+            />
+          ) : (
+              column.cards.map((card) => (
+                <CardItem key={card.id} card={card} boardId={boardId} canEdit={canEdit} />
+              ))
+            )}
+          </SortableContext>
+        </div>
+
+        {canEdit && <AddCardInput columnId={column.id} boardId={boardId} />}
       </div>
 
-      {canEdit && <AddCardInput columnId={column.id} boardId={boardId} />}
-    </div>
+      <DeleteColumnDialog
+        column={column}
+        otherColumns={otherColumns}
+        boardId={boardId}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+      />
+    </>
   )
 }
