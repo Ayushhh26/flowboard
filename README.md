@@ -2,7 +2,7 @@
 
 A Kanban workspace built to explore the hard parts of building production-grade frontend systems: optimistic state, drag-and-drop across containers, and clean separation between server and UI state.
 
-> **Live demo:** _coming soon_ · **Demo mode:** toggle the pill in the header to simulate a server failure mid-drag and watch the optimistic update roll back with a toast.
+> **Live demo:** [flowboard-kapp.vercel.app](https://flowboard-kapp.vercel.app) · **Demo mode:** toggle the pill in the header to simulate a server failure mid-drag and watch the optimistic update roll back with a toast.
 
 ![demo](docs/demo.gif)
 
