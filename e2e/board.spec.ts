@@ -65,10 +65,12 @@ test.describe('Board flows', () => {
   })
 
   test('filters by priority and clears', async ({ page }) => {
-    await page.getByRole('button', { name: 'High', exact: true }).click()
-    await expect(page.getByRole('button', { name: 'Clear filters' })).toBeVisible()
-    await page.getByRole('button', { name: 'Clear filters' }).click()
-    await expect(page.getByRole('button', { name: 'Clear filters' })).toBeHidden()
+    const filterToolbar = page.getByRole('toolbar', { name: 'Board filters' })
+    await filterToolbar.getByRole('button', { name: 'High', exact: true }).click()
+    const clearFilters = filterToolbar.getByRole('button', { name: 'Clear filters' })
+    await expect(clearFilters).toBeVisible()
+    await clearFilters.click()
+    await expect(clearFilters).toBeHidden()
   })
 
   test('keyboard drag pickup and cancel', async ({ page }) => {

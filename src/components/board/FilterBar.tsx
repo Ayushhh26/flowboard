@@ -64,7 +64,11 @@ export function FilterBar({ boardId, labels }: FilterBarProps) {
   const hasLabelFilters = labels.length > 0
 
   return (
-    <div className="shrink-0 border-b border-border bg-surface px-4 py-2.5 shadow-sm sm:px-6">
+    <div
+      role="toolbar"
+      aria-label="Board filters"
+      className="shrink-0 border-b border-border bg-surface px-4 py-2.5 shadow-sm sm:px-6"
+    >
       {/* Row 1: search (standard primary toolbar control, left) + clear (right) */}
       <div className="flex flex-wrap items-center gap-2 gap-y-2 sm:gap-3">
         <input
