@@ -34,6 +34,7 @@ import { FilterBar } from './FilterBar'
 import { MobileColumnTabs } from './MobileColumnTabs'
 import { CardItemContent } from './CardItem'
 import { CardDrawer } from './CardDrawer'
+import { SmartAddButton } from './SmartAddButton'
 import type { Card } from '@/types/card'
 import type { Board, ViewerRole } from '@/types/board'
 import type { Column as ColumnType } from '@/types/column'
@@ -295,7 +296,7 @@ export function BoardCanvas({ boardId, viewerRole }: BoardCanvasProps) {
   }
 
   return (
-    <>
+    <div className="relative flex h-full min-h-0 flex-col">
       <FilterBar boardId={boardId} labels={board.labels ?? []} />
       <MobileColumnTabs
         columns={displayColumns}
@@ -370,6 +371,7 @@ export function BoardCanvas({ boardId, viewerRole }: BoardCanvasProps) {
         </DragOverlay>
       </DndContext>
       <CardDrawer boardId={boardId} canEdit={canEdit} />
-    </>
+      {canEdit && <SmartAddButton boardId={boardId} />}
+    </div>
   )
 }

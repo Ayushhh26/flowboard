@@ -16,6 +16,25 @@ interface FilterBarProps {
   labels: Label[]
 }
 
+function FilterGroup({
+  label,
+  children,
+  className,
+}: {
+  label: string
+  children: React.ReactNode
+  className?: string
+}) {
+  return (
+    <div className={cn('flex min-w-0 flex-wrap items-center gap-2', className)}>
+      <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-muted">
+        {label}
+      </span>
+      <div className="flex flex-wrap items-center gap-1.5">{children}</div>
+    </div>
+  )
+}
+
 export function FilterBar({ boardId, labels }: FilterBarProps) {
   const {
     search,
@@ -41,97 +60,115 @@ export function FilterBar({ boardId, labels }: FilterBarProps) {
   const filters = { search, priorities, assigneeIds, labelIds }
   const active = hasActiveFilters(filters)
 
+  const hasAssigneeFilters = members.length > 0
+  const hasLabelFilters = labels.length > 0
+
   return (
-    <div className="border-b border-border bg-surface px-4 py-3 shadow-sm sm:px-6">
-      <div className="flex flex-col gap-3">
+    <div className="shrink-0 border-b border-border bg-surface px-4 py-2.5 shadow-sm sm:px-6">
+      {/* Row 1: search (standard primary toolbar control, left) + clear (right) */}
+      <div className="flex flex-wrap items-center gap-2 gap-y-2 sm:gap-3">
         <input
           type="search"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Search tasks..."
           aria-label="Search tasks"
-          className={cn(inputClassName, 'max-w-md')}
+          className={cn(inputClassName, 'min-w-[12rem] flex-1 sm:max-w-md')}
         />
-
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted">Priority</span>
-          {PRIORITY_OPTIONS.filter((p) => p.value !== 'none').map((opt) => {
-            const p = opt.value as Priority
-            const styles = PRIORITY_STYLES[p]
-            const isOn = priorities.includes(p)
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => togglePriority(p)}
-                className={cn(
-                  'inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors',
-                  focusRingClassName,
-                  isOn ? styles.filterActive : 'border-border bg-surface text-muted hover:bg-background'
-                )}
-                aria-pressed={isOn}
-              >
-                <span className={cn('h-2 w-2 shrink-0 rounded-full', styles.dot)} aria-hidden />
-                {opt.label}
-              </button>
-            )
-          })}
-        </div>
-
-        {members.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted">Assignee</span>
-            {members.map((m) => (
-              <button
-                key={m.userId}
-                type="button"
-                onClick={() => toggleAssignee(m.userId)}
-                className={cn(
-                  'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors',
-                  focusRingClassName,
-                  assigneeIds.includes(m.userId)
-                    ? 'border-accent bg-accent-muted text-accent'
-                    : 'border-border bg-surface text-muted hover:bg-background'
-                )}
-                aria-pressed={assigneeIds.includes(m.userId)}
-              >
-                {m.name}
-              </button>
-            ))}
-          </div>
+        {active && (
+          <Button size="sm" variant="ghost" onClick={clearAll} className="shrink-0 sm:ml-auto">
+            Clear filters
+          </Button>
         )}
+      </div>
 
-        {labels.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-muted">Labels</span>
-            {labels.map((label) => {
-              const isOn = labelIds.includes(label.id)
+      {/* Row 2: filter dimensions in one toolbar strip (Trello / Linear-style) */}
+      <div
+        className={cn(
+          'mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border/60 pt-2',
+          'sm:gap-x-6'
+        )}
+      >
+          <FilterGroup label="Priority">
+            {PRIORITY_OPTIONS.filter((p) => p.value !== 'none').map((opt) => {
+              const p = opt.value as Priority
+              const styles = PRIORITY_STYLES[p]
+              const isOn = priorities.includes(p)
               return (
                 <button
-                  key={label.id}
+                  key={opt.value}
                   type="button"
-                  onClick={() => toggleLabel(label.id)}
+                  onClick={() => togglePriority(p)}
                   className={cn(
-                    'cursor-pointer rounded-md transition-all',
+                    'inline-flex cursor-pointer items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors',
                     focusRingClassName,
-                    !isOn && 'opacity-60 saturate-75 hover:opacity-100 hover:saturate-100'
+                    isOn ? styles.filterActive : 'border-border bg-surface text-muted hover:bg-background'
                   )}
                   aria-pressed={isOn}
                 >
-                  <LabelChip label={label} size="md" />
+                  <span className={cn('h-2 w-2 shrink-0 rounded-full', styles.dot)} aria-hidden />
+                  {opt.label}
                 </button>
               )
             })}
-          </div>
-        )}
+          </FilterGroup>
 
-        {active && (
-          <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" variant="ghost" onClick={clearAll}>
-              Clear all filters
-            </Button>
-          </div>
-        )}
+          {hasAssigneeFilters && (
+            <>
+              <span
+                className="hidden h-4 w-px shrink-0 bg-border sm:block"
+                aria-hidden
+              />
+              <FilterGroup label="Assignee">
+                {members.map((m) => (
+                  <button
+                    key={m.userId}
+                    type="button"
+                    onClick={() => toggleAssignee(m.userId)}
+                    className={cn(
+                      'cursor-pointer rounded-md border px-2.5 py-1 text-xs font-semibold transition-colors',
+                      focusRingClassName,
+                      assigneeIds.includes(m.userId)
+                        ? 'border-accent bg-accent-muted text-accent'
+                        : 'border-border bg-surface text-muted hover:bg-background'
+                    )}
+                    aria-pressed={assigneeIds.includes(m.userId)}
+                  >
+                    {m.name}
+                  </button>
+                ))}
+              </FilterGroup>
+            </>
+          )}
+
+          {hasLabelFilters && (
+            <>
+              <span
+                className="hidden h-4 w-px shrink-0 bg-border sm:block"
+                aria-hidden
+              />
+              <FilterGroup label="Labels">
+                {labels.map((label) => {
+                  const isOn = labelIds.includes(label.id)
+                  return (
+                    <button
+                      key={label.id}
+                      type="button"
+                      onClick={() => toggleLabel(label.id)}
+                      className={cn(
+                        'cursor-pointer rounded-md transition-all',
+                        focusRingClassName,
+                        !isOn && 'opacity-60 saturate-75 hover:opacity-100 hover:saturate-100'
+                      )}
+                      aria-pressed={isOn}
+                    >
+                      <LabelChip label={label} size="md" />
+                    </button>
+                  )
+                })}
+              </FilterGroup>
+            </>
+          )}
       </div>
     </div>
   )
