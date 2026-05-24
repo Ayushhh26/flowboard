@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
-import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { requireActor, UnauthorizedError } from '@/lib/auth'
 import { boardWriteAccess } from '@/lib/permissions'
 
 export async function POST(
@@ -11,9 +11,9 @@ export async function POST(
     return err('SIMULATED_FAILURE', 'Simulated network error for demo', 500)
   }
 
-  let user
+  let actor
   try {
-    user = await requireUser()
+    actor = await requireActor(req)
   } catch (e) {
     if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
     throw e
@@ -30,13 +30,13 @@ export async function POST(
   }
 
   const card = await db.card.findFirst({
-    where: { id, column: { board: boardWriteAccess(user.id) } },
+    where: { id, column: { board: boardWriteAccess(actor.userId) } },
     include: { column: { select: { boardId: true } } },
   })
   if (!card) return err('NOT_FOUND', 'Card not found', 404)
 
   const targetColumn = await db.column.findFirst({
-    where: { id: body.targetColumnId, board: boardWriteAccess(user.id) },
+    where: { id: body.targetColumnId, board: boardWriteAccess(actor.userId) },
     select: { id: true, boardId: true },
   })
   if (!targetColumn) return err('NOT_FOUND', 'Target column not found', 404)

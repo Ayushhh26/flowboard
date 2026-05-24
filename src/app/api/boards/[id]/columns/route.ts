@@ -1,17 +1,18 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
-import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { requireActor, UnauthorizedError } from '@/lib/auth'
 import { boardWriteAccess } from '@/lib/permissions'
 
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let user
+  let actor
   try {
-    user = await requireUser()
+    actor = await requireActor(req)
   } catch (e) {
     if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
+    throw e
   }
 
   const { id: boardId } = await params
@@ -24,7 +25,7 @@ export async function POST(
   const title = body.title.trim().slice(0, 100)
 
   const board = await db.board.findFirst({
-    where: { id: boardId, ...boardWriteAccess(user!.id) },
+    where: { id: boardId, ...boardWriteAccess(actor.userId) },
     select: { id: true },
   })
   if (!board) return err('NOT_FOUND', 'Board not found', 404)

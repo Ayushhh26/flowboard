@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
-import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { requireActor, requireUser, UnauthorizedError } from '@/lib/auth'
 import { boardReadAccess, boardOwnerAccess } from '@/lib/permissions'
 import { MemberRole } from '@/generated/prisma/client'
 
@@ -22,12 +22,12 @@ type ApiInvitation = {
 // GET: list members + (owner-only) pending invitations.
 // Anyone on the board can see members. Only the owner sees pending invitations.
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let user
+  let actor
   try {
-    user = await requireUser()
+    actor = await requireActor(req)
   } catch (e) {
     if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
     throw e
@@ -36,7 +36,7 @@ export async function GET(
   const { id: boardId } = await params
 
   const board = await db.board.findFirst({
-    where: { id: boardId, ...boardReadAccess(user.id) },
+    where: { id: boardId, ...boardReadAccess(actor.userId) },
     select: {
       ownerId: true,
       owner: { select: { id: true, name: true, email: true, avatarUrl: true } },
@@ -53,7 +53,7 @@ export async function GET(
 
   if (!board) return err('NOT_FOUND', 'Board not found', 404)
 
-  const isOwner = board.ownerId === user.id
+  const isOwner = board.ownerId === actor.userId
 
   const members: ApiMember[] = [
     {

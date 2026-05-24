@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
-import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { requireActor, UnauthorizedError } from '@/lib/auth'
 import { boardWriteAccess } from '@/lib/permissions'
 
 async function getColumnWithAccess(columnId: string, userId: string) {
@@ -17,11 +17,12 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ columnId: string }> }
 ) {
-  let user
+  let actor
   try {
-    user = await requireUser()
+    actor = await requireActor(req)
   } catch (e) {
     if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
+    throw e
   }
 
   const { columnId } = await params
@@ -31,7 +32,7 @@ export async function PATCH(
     return err('VALIDATION_ERROR', 'title is required', 400)
   }
 
-  const column = await getColumnWithAccess(columnId, user!.id)
+  const column = await getColumnWithAccess(columnId, actor.userId)
   if (!column) return err('NOT_FOUND', 'Column not found', 404)
 
   const updated = await db.column.update({
@@ -47,11 +48,12 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ columnId: string }> }
 ) {
-  let user
+  let actor
   try {
-    user = await requireUser()
+    actor = await requireActor(req)
   } catch (e) {
     if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
+    throw e
   }
 
   const { columnId } = await params
@@ -60,7 +62,7 @@ export async function DELETE(
     deleteCards?: unknown
   }
 
-  const column = await getColumnWithAccess(columnId, user!.id)
+  const column = await getColumnWithAccess(columnId, actor.userId)
   if (!column) return err('NOT_FOUND', 'Column not found', 404)
 
   if (column.board.columns.length <= 1) {

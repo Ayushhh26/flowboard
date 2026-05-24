@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
-import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { requireActor, UnauthorizedError } from '@/lib/auth'
 import { boardWriteAccess } from '@/lib/permissions'
 import type { UpdateCardPayload } from '@/types/card'
 
@@ -17,9 +17,9 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let user
+  let actor
   try {
-    user = await requireUser()
+    actor = await requireActor(req)
   } catch (e) {
     if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
     throw e
@@ -28,7 +28,7 @@ export async function PATCH(
   const { id } = await params
   const body: UpdateCardPayload = await req.json()
 
-  const card = await cardWriteAccess(id, user.id)
+  const card = await cardWriteAccess(id, actor.userId)
   if (!card) return err('NOT_FOUND', 'Card not found', 404)
 
   if (body.assigneeId !== undefined && body.assigneeId !== null) {
@@ -76,12 +76,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let user
+  let actor
   try {
-    user = await requireUser()
+    actor = await requireActor(req)
   } catch (e) {
     if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
     throw e
@@ -90,7 +90,7 @@ export async function DELETE(
   const { id } = await params
 
   const card = await db.card.findFirst({
-    where: { id, column: { board: boardWriteAccess(user.id) } },
+    where: { id, column: { board: boardWriteAccess(actor.userId) } },
     select: { id: true },
   })
   if (!card) return err('NOT_FOUND', 'Card not found', 404)

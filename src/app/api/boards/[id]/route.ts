@@ -1,15 +1,15 @@
 import { db } from '@/lib/db'
 import { ok, err } from '@/lib/api'
-import { requireUser, UnauthorizedError } from '@/lib/auth'
+import { requireActor, requireUser, UnauthorizedError } from '@/lib/auth'
 import { boardOwnerAccess, boardReadAccess, resolveViewerRole } from '@/lib/permissions'
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  let user
+  let actor
   try {
-    user = await requireUser()
+    actor = await requireActor(req)
   } catch (e) {
     if (e instanceof UnauthorizedError) return err('UNAUTHORIZED', 'Sign in required', 401)
     throw e
@@ -18,7 +18,7 @@ export async function GET(
   const { id } = await params
 
   const board = await db.board.findFirst({
-    where: { id, ...boardReadAccess(user.id) },
+    where: { id, ...boardReadAccess(actor.userId) },
     include: {
       labels: { orderBy: { name: 'asc' } },
       columns: {
@@ -38,7 +38,7 @@ export async function GET(
 
   if (!board) return err('NOT_FOUND', 'Board not found', 404)
 
-  const viewerRole = await resolveViewerRole(id, user.id)
+  const viewerRole = await resolveViewerRole(id, actor.userId)
 
   const transformed = {
     ...board,

@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { Avatar } from '@/components/ui/Avatar'
+import { ApiTokensDialog } from '@/components/settings/ApiTokensDialog'
 import { focusRingClassName } from '@/lib/ui-colors'
 import { cn } from '@/lib/cn'
 
@@ -13,6 +15,8 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ name, email, avatarUrl }: UserMenuProps) {
+  const [tokensOpen, setTokensOpen] = useState(false)
+
   async function handleSignOut(e: Event) {
     // Prevent Radix from closing the menu before the request finishes —
     // closing unmounts the item and would interrupt any inline form submission.
@@ -52,6 +56,12 @@ export function UserMenu({ name, email, avatarUrl }: UserMenuProps) {
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Item
+            onSelect={() => setTokensOpen(true)}
+            className="cursor-pointer rounded-md px-2 py-1.5 text-left text-foreground outline-none transition-colors duration-200 data-[highlighted]:bg-foreground/5"
+          >
+            API tokens
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
             onSelect={handleSignOut}
             className="cursor-pointer rounded-md px-2 py-1.5 text-left text-foreground outline-none transition-colors duration-200 data-[highlighted]:bg-foreground/5"
           >
@@ -59,6 +69,7 @@ export function UserMenu({ name, email, avatarUrl }: UserMenuProps) {
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
+      <ApiTokensDialog open={tokensOpen} onOpenChange={setTokensOpen} />
     </DropdownMenu.Root>
   )
 }

@@ -31,6 +31,21 @@ model User {
   cards           Card[]
   memberships     BoardMember[]
   invitationsSent BoardInvitation[] @relation("InvitationsSent")
+  apiTokens       ApiToken[]
+}
+
+model ApiToken {
+  id         String    @id @default(uuid())
+  userId     String    @db.Uuid
+  name       String    @db.VarChar(100)
+  tokenHash  String    @unique
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  expiresAt  DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Board {

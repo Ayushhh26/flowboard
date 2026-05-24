@@ -10,6 +10,11 @@ export async function proxy(request: NextRequest) {
   const isPublicPath =
     PUBLIC_PATHS.includes(pathname) || pathname.startsWith('/auth/')
 
+  // API routes authenticate via requireActor (session or Bearer token).
+  if (pathname.startsWith('/api/')) {
+    return supabaseResponse
+  }
+
   if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
