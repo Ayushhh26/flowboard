@@ -48,8 +48,17 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: MCP package typecheck
+        run: npm run mcp:typecheck
+
+      - name: MCP unit tests
+        run: npm run mcp:test
+
       - name: Build
         run: npm run build
+
+      - name: Build MCP server
+        run: npm run mcp:build
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
