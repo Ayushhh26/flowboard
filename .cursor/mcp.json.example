@@ -1,8 +1,8 @@
 {
   "mcpServers": {
     "flowboard": {
-      "command": "node",
-      "args": ["/ABSOLUTE/PATH/TO/flowboard/packages/mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "flowboard-mcp-server"],
       "env": {
         "FLOWBOARD_BASE_URL": "http://localhost:3000",
         "FLOWBOARD_API_TOKEN": "fb_paste_your_token_here",

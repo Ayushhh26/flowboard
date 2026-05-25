@@ -1,19 +1,46 @@
 {
-  "name": "@flowboard/mcp-server",
+  "name": "flowboard-mcp-server",
   "version": "0.1.0",
-  "private": true,
+  "description": "MCP server for FlowBoard — six board tools (get_board, search_cards, create_card_from_text, etc.) for Cursor, Claude Code, and Claude Desktop over personal API tokens.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "kanban",
+    "cursor",
+    "claude",
+    "claude-code",
+    "flowboard",
+    "ai",
+    "agent"
+  ],
+  "homepage": "https://github.com/Ayushhh26/flowboard/tree/main/packages/mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/Ayushhh26/flowboard/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ayushhh26/flowboard.git",
+    "directory": "packages/mcp-server"
+  },
+  "license": "MIT",
+  "author": "Ayush <https://github.com/Ayushhh26>",
   "type": "module",
-  "description": "FlowBoard MCP server — board tools over HTTP + API token",
   "bin": {
     "flowboard-mcp": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "tsx --test src/client.test.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
@@ -26,5 +53,8 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

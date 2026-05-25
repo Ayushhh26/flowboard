@@ -8,25 +8,16 @@ Connect Cursor, Claude Code, or Claude Desktop to your FlowBoard via the **stdio
 2. An **API token** from the app: user menu → **API tokens** → Create token. Copy the `fb_...` value once; it is not shown again.
 3. A **board UUID** from the URL: `/board/<board-id>`.
 
-## Build the server
-
-From the repo root:
-
-```bash
-npm install
-npm run mcp:build
-```
-
 ## Cursor configuration
 
-Add to `.cursor/mcp.json` (project) or Cursor Settings → MCP:
+The recommended path is **`npx`** — no clone or build needed:
 
 ```json
 {
   "mcpServers": {
     "flowboard": {
-      "command": "node",
-      "args": ["/absolute/path/to/flowboard/packages/mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "flowboard-mcp-server"],
       "env": {
         "FLOWBOARD_BASE_URL": "http://localhost:3000",
         "FLOWBOARD_API_TOKEN": "fb_your_token_here",
@@ -37,7 +28,29 @@ Add to `.cursor/mcp.json` (project) or Cursor Settings → MCP:
 }
 ```
 
-Use the **absolute path** to `dist/index.js` on your machine.
+Add it to `.cursor/mcp.json` (project) or Cursor Settings → MCP.
+
+### Running from a local checkout
+
+If you're developing the MCP server itself or want to avoid the `npx` install step:
+
+```bash
+npm install
+npm run mcp:build
+```
+
+Then point Cursor at the absolute path:
+
+```json
+{
+  "mcpServers": {
+    "flowboard": {
+      "command": "node",
+      "args": ["/absolute/path/to/flowboard/packages/mcp-server/dist/index.js"]
+    }
+  }
+}
+```
 
 ## Claude Code
 

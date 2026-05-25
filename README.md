@@ -122,7 +122,7 @@ The Smart Add button is hidden when `GROQ_API_KEY` is not configured (the client
 
 ### MCP server (Cursor / Claude Code)
 
-`@flowboard/mcp-server` is a stdio MCP server in [`packages/mcp-server`](packages/mcp-server). It exposes six tools that hit the **same REST API** as the browser using a personal Bearer token — no direct DB access, no shared secrets.
+[`flowboard-mcp-server`](https://www.npmjs.com/package/flowboard-mcp-server) is a stdio MCP server in [`packages/mcp-server`](packages/mcp-server). It exposes six tools that hit the **same REST API** as the browser using a personal Bearer token — no direct DB access, no shared secrets.
 
 | Tool | Calls |
 |------|-------|
@@ -182,7 +182,7 @@ src/
   stores/              useDrawerStore, useDemoStore, useFilterStore
   types/               Shared types (Board, Card, Column, ApiResponse, agent)
 packages/
-  mcp-server/          @flowboard/mcp-server — stdio MCP server with 6 tools
+  mcp-server/          flowboard-mcp-server — stdio MCP server with 6 tools
 prisma/
   schema.prisma        Boards → Columns → Cards, plus Labels, Users, ApiToken
   seed.ts              Seed data for local development
@@ -280,4 +280,4 @@ Vercel deployment is unchanged: merge to `main` still auto-deploys. CI is an ext
 
 - **Virtualization** for boards with hundreds of cards per column
 - **Command palette** for power-user navigation
-- **Publish `@flowboard/mcp-server` to npm** so anyone can `npx` it (today it's used from a local clone)
+- Submit `flowboard-mcp-server` to the [Cursor Directory](https://cursor.directory/mcp) and [awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) for discoverability
