@@ -1,5 +1,8 @@
 # FlowBoard
 
+[![mcp npm](https://img.shields.io/npm/v/flowboard-mcp-server?label=mcp%20server&logo=npm)](https://www.npmjs.com/package/flowboard-mcp-server)
+[![license](https://img.shields.io/github/license/Ayushhh26/flowboard)](./LICENSE)
+
 A Kanban workspace built to explore the hard parts of building production-grade frontend systems: optimistic state, drag-and-drop across containers, and clean separation between server and UI state.
 
 > **Live demo:** [flowboard-kapp.vercel.app](https://flowboard-kapp.vercel.app) · **Demo mode:** toggle the pill in the header to simulate a server failure mid-drag and watch the optimistic update roll back with a toast.
