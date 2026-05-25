@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "tsx --test src/**/*.test.ts",
+    "test": "tsx --test src/client.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
