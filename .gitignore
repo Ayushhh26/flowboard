@@ -26,7 +26,8 @@
 # misc
 .DS_Store
 *.pem
-.cursor/
+.cursor/*
+!.cursor/mcp.json.example
 
 # debug
 npm-debug.log*

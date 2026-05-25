@@ -81,21 +81,110 @@ A toggle in the header sets a Zustand flag. When on, `useMoveCard.mutationFn` ad
 
 ---
 
+## AI features
+
+FlowBoard ships two AI surfaces backed by the **same parse pipeline** and the **same REST API**:
+
+| Surface | User | Auth | Entry |
+|---------|------|------|-------|
+| **Smart Add** | Human, in the browser | Supabase session cookie | Floating sparkle button on the board |
+| **MCP server** | Agent, in Cursor / Claude Code | Personal API token (`fb_…`) | `packages/mcp-server` (stdio) |
+
+```text
+┌──────────┐   ┌────────────────────────┐    ┌──────────────┐
+│ Browser  │──▶│  POST /cards/parse     │──▶│ Groq         │
+│ Smart Add│   │  POST /cards/from-text │   │ structured   │
+└──────────┘   │  REST /api/...         │   │ JSON         │
+               │                        │   └──────┬───────┘
+┌──────────┐   │  requireActor:         │          │
+│ Cursor / │──▶│  Bearer fb_… OR cookie │◀─────────┘
+│ MCP tool │   └──────┬─────────────────┘
+└──────────┘          │
+                ┌─────▼──────┐
+                │ PostgreSQL │
+                └────────────┘
+```
+
+### Smart Add (browser)
+
+A short prompt like _"fix the login bug on mobile, urgent, assign to Alice"_ becomes a fully-structured card — title, description, priority, column, assignee, labels — with a **preview-and-confirm** step before anything is written.
+
+The pipeline:
+
+1. `POST /api/boards/[id]/cards/parse` loads board context (columns, members, labels).
+2. The server calls **Groq** with a JSON-schema-constrained prompt (default model `openai/gpt-oss-20b`, with a `json_object` fallback for models that don't support `json_schema`).
+3. The response is validated against the **actual board IDs** — a hallucinated `columnId` or member never reaches the DB.
+4. The UI renders a preview card; on confirm, the existing `useCreateCard` / `useUpdateCard` hooks insert it.
+
+Files: [`src/lib/ai/parseCardPrompt.ts`](src/lib/ai/parseCardPrompt.ts) · [`parseCardFromText.ts`](src/lib/ai/parseCardFromText.ts) · [`parseCardDraft.ts`](src/lib/ai/parseCardDraft.ts) · [`src/app/api/boards/[id]/cards/parse/route.ts`](src/app/api/boards/[id]/cards/parse/route.ts) · [`src/components/board/SmartAddCardDialog.tsx`](src/components/board/SmartAddCardDialog.tsx).
+
+The Smart Add button is hidden when `GROQ_API_KEY` is not configured (the client checks `GET /api/features`).
+
+### MCP server (Cursor / Claude Code)
+
+`@flowboard/mcp-server` is a stdio MCP server in [`packages/mcp-server`](packages/mcp-server). It exposes six tools that hit the **same REST API** as the browser using a personal Bearer token — no direct DB access, no shared secrets.
+
+| Tool | Calls |
+|------|-------|
+| `get_board` | `GET /api/boards/{id}` |
+| `get_board_summary` | Same board, aggregated locally (counts, urgent list) |
+| `search_cards` | `GET /api/boards/{id}/cards/search` |
+| `create_card` | `POST /api/columns/{columnId}/cards` (+ optional `PATCH /api/cards/{id}`) |
+| `create_card_from_text` | `POST /api/boards/{id}/cards/from-text` (Smart Add parser → atomic create) |
+| `move_card` | `POST /api/cards/{id}/move` |
+
+Setup is in [`docs/mcp-setup.md`](docs/mcp-setup.md). The short version:
+
+1. **Create an API token** in FlowBoard (user menu → API tokens) and copy the `fb_…` value.
+2. **Build the server:** `npm run mcp:build`.
+3. **Copy** [`.cursor/mcp.json.example`](.cursor/mcp.json.example) to `.cursor/mcp.json` and fill in the token, board ID, and the absolute path to `dist/index.js`.
+4. **Restart Cursor** and the `flowboard` MCP server appears with its tools.
+
+### Security model
+
+- Tokens are stored as **SHA-256 hashes** (`ApiToken.tokenHash`); the plaintext is shown once at creation and never logged or returned again.
+- Every API route uses **`requireActor(req)`** ([`src/lib/auth.ts`](src/lib/auth.ts)), which accepts either a Supabase session cookie or a `Bearer fb_…` token. Permissions (`boardReadAccess`, `boardWriteAccess`, `boardOwnerAccess`) apply identically to both.
+- `GROQ_API_KEY` is **server-only** — there is no browser call to Groq.
+- The MCP package contains no DB driver and no Supabase keys; it only knows your HTTP base URL and your token.
+
+### Environment
+
+| Variable | Where | Required for |
+|----------|-------|--------------|
+| `GROQ_API_KEY` | Server | Smart Add (browser + MCP `create_card_from_text`) |
+| `GROQ_MODEL` | Server | Optional override (defaults to `openai/gpt-oss-20b`) |
+| `FLOWBOARD_API_TOKEN` | MCP env | All MCP tools |
+| `FLOWBOARD_BASE_URL` | MCP env | All MCP tools (default `http://localhost:3000`) |
+| `FLOWBOARD_BOARD_ID` | MCP env | Optional default board for tools that accept `boardId` |
+
+---
+
 ## Project structure
 
 ```
 src/
   app/                 Next.js App Router (pages + API routes)
-    api/               REST endpoints for boards, columns, cards
+    api/               REST endpoints for boards, columns, cards, tokens
+      boards/[id]/
+        cards/
+          parse/       Smart Add — preview-only (browser)
+          from-text/   Smart Add — atomic create (MCP)
+          search/      Filterable list (MCP search_cards)
   components/
-    board/             BoardCanvas, Column, CardItem, CardDrawer, BoardHeader
+    board/             BoardCanvas, Column, CardItem, CardDrawer, SmartAddCardDialog
+    settings/          ApiTokensDialog (create/revoke MCP tokens)
     ui/                Button, Badge, Skeleton, InlineEdit primitives
-  hooks/               useBoard, useMoveCard, useCreateCard, useUpdateCard, useDeleteCard
-  lib/                 fractionalIndex, cn (className helper), Prisma client
-  stores/              useDrawerStore (Zustand UI state), useDemoStore
-  types/               Shared types (Board, Card, Column, ApiResponse)
+  hooks/               useBoard, useMoveCard, useCreateCard, useParseCard, useSmartCreateCard
+  lib/
+    ai/                groq client, prompt, draft validation
+    auth.ts            requireUser (cookie) + requireActor (cookie OR Bearer token)
+    fractionalIndex.ts cn (className helper), Prisma client
+  stores/              useDrawerStore, useDemoStore, useFilterStore
+  types/               Shared types (Board, Card, Column, ApiResponse, agent)
+packages/
+  mcp-server/          @flowboard/mcp-server — stdio MCP server with 6 tools
 prisma/
-  schema.prisma        Boards → Columns → Cards, with Labels and Users
+  schema.prisma        Boards → Columns → Cards, plus Labels, Users, ApiToken
   seed.ts              Seed data for local development
 ```
 
@@ -138,6 +227,7 @@ Required env vars:
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL (for the auth client) |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key (for the auth client) |
 | `NEXT_PUBLIC_DEMO_MODE` | Set to `"true"` to render the demo-mode toggle in the header |
+| `GROQ_API_KEY` | Optional — enables Smart Add (browser) and `create_card_from_text` (MCP) |
 
 ---
 
@@ -188,6 +278,6 @@ Vercel deployment is unchanged: merge to `main` still auto-deploys. CI is an ext
 
 ## What's next
 
-- **AI-assisted card creation** — suggest priority and description from a title using the Claude API
 - **Virtualization** for boards with hundreds of cards per column
 - **Command palette** for power-user navigation
+- **Publish `@flowboard/mcp-server` to npm** so anyone can `npx` it (today it's used from a local clone)

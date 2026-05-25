@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "flowboard": {
+      "command": "node",
+      "args": ["/ABSOLUTE/PATH/TO/flowboard/packages/mcp-server/dist/index.js"],
+      "env": {
+        "FLOWBOARD_BASE_URL": "http://localhost:3000",
+        "FLOWBOARD_API_TOKEN": "fb_paste_your_token_here",
+        "FLOWBOARD_BOARD_ID": "paste-your-board-uuid-here"
+      }
+    }
+  }
+}
