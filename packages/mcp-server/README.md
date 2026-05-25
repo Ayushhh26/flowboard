@@ -3,7 +3,7 @@
 [![npm](https://img.shields.io/npm/v/flowboard-mcp-server.svg)](https://www.npmjs.com/package/flowboard-mcp-server)
 [![license](https://img.shields.io/npm/l/flowboard-mcp-server.svg)](./LICENSE)
 
-A stdio [Model Context Protocol](https://modelcontextprotocol.io/) server that exposes a [FlowBoard](https://github.com/Ayushhh26/flowboard) Kanban board to AI agents like Cursor, Claude Code, and Claude Desktop.
+A stdio [Model Context Protocol](https://modelcontextprotocol.io/) server that exposes a [FlowBoard](https://flowboard-kapp.vercel.app) Kanban board to AI agents like Cursor, Claude Code, and Claude Desktop.
 
 The server talks to FlowBoard over its public HTTP API with a **personal API token** — no database access, no shared secrets, the same permissions you have in the browser.
 
@@ -18,17 +18,18 @@ The server talks to FlowBoard over its public HTTP API with a **personal API tok
 | `create_card_from_text` | Natural language → card (parser-backed Smart Add, server-side) |
 | `move_card` | Move a card between columns; auto-appends if `newOrderIndex` is omitted |
 
-`create_card_from_text` requires `GROQ_API_KEY` to be set on the FlowBoard server. The other tools work without it.
+## Before you install
 
-## Prerequisites
+You need two things from the [live FlowBoard app](https://flowboard-kapp.vercel.app):
 
-1. **A FlowBoard instance** — your own deployment, or the public demo at `https://flowboard-kapp.vercel.app`. You need an account.
-2. **A personal API token** — in the FlowBoard UI: **user menu → API tokens → Create token**. The plaintext `fb_...` is shown once. Copy it.
-3. **A board UUID** — from the board URL: `/board/<uuid>`.
+1. **An API token.** Sign in → user menu → **API tokens** → **Create token**. The plaintext `fb_...` is shown once; copy it now.
+2. **A board UUID.** Open a board; copy the UUID from the URL: `/board/<uuid>`.
+
+That's it — no clone, no install, no database.
 
 ## Cursor
 
-Add to `.cursor/mcp.json` (project) or your user-level Cursor MCP config:
+Paste this into `.cursor/mcp.json` (project) or your user-level Cursor MCP config:
 
 ```json
 {
@@ -37,7 +38,6 @@ Add to `.cursor/mcp.json` (project) or your user-level Cursor MCP config:
       "command": "npx",
       "args": ["-y", "flowboard-mcp-server"],
       "env": {
-        "FLOWBOARD_BASE_URL": "https://flowboard-kapp.vercel.app",
         "FLOWBOARD_API_TOKEN": "fb_...",
         "FLOWBOARD_BOARD_ID": "your-board-uuid"
       }
@@ -46,19 +46,7 @@ Add to `.cursor/mcp.json` (project) or your user-level Cursor MCP config:
 }
 ```
 
-Restart Cursor (or refresh MCP from Settings → MCP) and the `flowboard` server appears with its tools.
-
-### Running against a local FlowBoard
-
-If you've cloned FlowBoard and are running `npm run dev`:
-
-```json
-"env": {
-  "FLOWBOARD_BASE_URL": "http://localhost:3000",
-  "FLOWBOARD_API_TOKEN": "fb_...",
-  "FLOWBOARD_BOARD_ID": "your-board-uuid"
-}
-```
+Restart Cursor (or refresh MCP from Settings → MCP) and the `flowboard` server appears with its tools. The server defaults to `https://flowboard-kapp.vercel.app`, so you don't need `FLOWBOARD_BASE_URL` unless you're running your own backend.
 
 ## Claude Code / Claude Desktop
 
@@ -69,8 +57,8 @@ Same env vars; same `npx -y flowboard-mcp-server` command. See your client's MCP
 | Variable | Required | Default |
 |----------|----------|---------|
 | `FLOWBOARD_API_TOKEN` | Yes | — |
-| `FLOWBOARD_BASE_URL` | No | `http://localhost:3000` |
 | `FLOWBOARD_BOARD_ID` | No\* | — |
+| `FLOWBOARD_BASE_URL` | No | `https://flowboard-kapp.vercel.app` |
 
 \*If unset, every tool call must include `boardId` as an argument.
 
@@ -87,19 +75,21 @@ Same env vars; same `npx -y flowboard-mcp-server` command. See your client's MCP
                                                               └────────────┘
 ```
 
-The MCP package has **no Prisma**, no Supabase keys, and no awareness of the database. It only knows how to call your FlowBoard HTTP API.
+The MCP package has **no Prisma**, no Supabase keys, and no awareness of the database. It only knows how to call the FlowBoard HTTP API with your Bearer token.
 
-## Local development
+## Advanced: pointing at your own FlowBoard
 
-From the [FlowBoard repo](https://github.com/Ayushhh26/flowboard) root:
+If you're [self-hosting FlowBoard](https://github.com/Ayushhh26/flowboard) or running it locally, set `FLOWBOARD_BASE_URL` to override the default:
 
-```bash
-npm install
-npm run mcp:build
-npm run mcp:test
+```json
+"env": {
+  "FLOWBOARD_BASE_URL": "http://localhost:3000",
+  "FLOWBOARD_API_TOKEN": "fb_...",
+  "FLOWBOARD_BOARD_ID": "your-board-uuid"
+}
 ```
 
-To test a local build in Cursor without publishing, point `args` at the absolute `dist/index.js`:
+To test a local build of *this package* in Cursor without publishing, clone the [FlowBoard repo](https://github.com/Ayushhh26/flowboard) and point `args` at the absolute `dist/index.js`:
 
 ```json
 "command": "node",
@@ -110,9 +100,9 @@ To test a local build in Cursor without publishing, point `args` at the absolute
 
 | Symptom | Cause |
 |---------|-------|
-| `401 UNAUTHORIZED` | Token revoked, expired, or wrong; recreate in FlowBoard UI |
-| `404 Board not found` | Wrong `FLOWBOARD_BOARD_ID` or your user has no access |
-| `AI_UNAVAILABLE` (only for `create_card_from_text`) | `GROQ_API_KEY` not set on the FlowBoard server |
+| `401 UNAUTHORIZED` | Token revoked, expired, or wrong; create a new one in the FlowBoard UI |
+| `404 Board not found` | Wrong `FLOWBOARD_BOARD_ID` or your user has no access to that board |
+| `AI_UNAVAILABLE` (only for `create_card_from_text`) | `GROQ_API_KEY` not set on the FlowBoard server (the live demo has it set) |
 | MCP server exits immediately | Run the same command in a terminal; stderr shows the missing env var |
 
 ## License

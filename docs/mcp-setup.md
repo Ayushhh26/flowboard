@@ -4,9 +4,12 @@ Connect Cursor, Claude Code, or Claude Desktop to your FlowBoard via the **stdio
 
 ## Prerequisites
 
-1. FlowBoard running locally (`npm run dev`) or deployed (set `FLOWBOARD_BASE_URL` to your host).
-2. An **API token** from the app: user menu → **API tokens** → Create token. Copy the `fb_...` value once; it is not shown again.
-3. A **board UUID** from the URL: `/board/<board-id>`.
+From the [live FlowBoard app](https://flowboard-kapp.vercel.app):
+
+1. An **API token**: user menu → **API tokens** → Create token. Copy the `fb_...` value once; it is not shown again.
+2. A **board UUID** from the URL: `/board/<board-id>`.
+
+(If you're self-hosting FlowBoard or running it locally, point `FLOWBOARD_BASE_URL` at your own host — see the "Local backend" section below.)
 
 ## Cursor configuration
 
@@ -19,7 +22,6 @@ The recommended path is **`npx`** — no clone or build needed:
       "command": "npx",
       "args": ["-y", "flowboard-mcp-server"],
       "env": {
-        "FLOWBOARD_BASE_URL": "http://localhost:3000",
         "FLOWBOARD_API_TOKEN": "fb_your_token_here",
         "FLOWBOARD_BOARD_ID": "your-board-uuid"
       }
@@ -28,18 +30,30 @@ The recommended path is **`npx`** — no clone or build needed:
 }
 ```
 
-Add it to `.cursor/mcp.json` (project) or Cursor Settings → MCP.
+Add it to `.cursor/mcp.json` (project) or Cursor Settings → MCP. The MCP server defaults to `https://flowboard-kapp.vercel.app`, so no `FLOWBOARD_BASE_URL` is needed.
 
-### Running from a local checkout
+### Local backend
 
-If you're developing the MCP server itself or want to avoid the `npx` install step:
+If you've cloned this repo and are running FlowBoard locally (`npm run dev`):
+
+```json
+"env": {
+  "FLOWBOARD_BASE_URL": "http://localhost:3000",
+  "FLOWBOARD_API_TOKEN": "fb_your_token_here",
+  "FLOWBOARD_BOARD_ID": "your-board-uuid"
+}
+```
+
+### Running from a local checkout of the MCP package itself
+
+If you're developing the MCP server itself:
 
 ```bash
 npm install
 npm run mcp:build
 ```
 
-Then point Cursor at the absolute path:
+Then point Cursor at the absolute `dist/index.js`:
 
 ```json
 {
@@ -61,7 +75,7 @@ Same env vars; point the MCP entry at `node` + `packages/mcp-server/dist/index.j
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `FLOWBOARD_API_TOKEN` | Yes | `fb_...` token from the app |
-| `FLOWBOARD_BASE_URL` | No | Default `http://localhost:3000` |
+| `FLOWBOARD_BASE_URL` | No | Default `https://flowboard-kapp.vercel.app` |
 | `FLOWBOARD_BOARD_ID` | No* | Default board for tools that accept optional `boardId` |
 
 \*If unset, pass `boardId` on each tool call.
@@ -86,14 +100,14 @@ export FLOWBOARD_API_TOKEN="fb_..."
 export BOARD_ID="your-board-uuid"
 
 curl -s -H "Authorization: Bearer $FLOWBOARD_API_TOKEN" \
-  "http://localhost:3000/api/boards/$BOARD_ID" | head -c 200
+  "https://flowboard-kapp.vercel.app/api/boards/$BOARD_ID" | head -c 200
 ```
 
 ## Troubleshooting
 
 - **401 Unauthorized** — Token revoked, wrong token, or missing `Authorization: Bearer`.
 - **404 Board not found** — Wrong `FLOWBOARD_BOARD_ID` or token user is not a member.
-- **MCP server exits immediately** — Run `node packages/mcp-server/dist/index.js` in a terminal; stderr shows missing `FLOWBOARD_API_TOKEN`.
-- **Production** — Set `FLOWBOARD_BASE_URL` to your Vercel URL; create a token on the deployed app.
+- **MCP server exits immediately** — Run `npx -y flowboard-mcp-server` directly in a terminal; stderr shows the missing env var.
+- **Self-hosting** — Set `FLOWBOARD_BASE_URL` to your own host (or `http://localhost:3000` for local dev) and create a token there.
 
 `create_card_from_text` calls `POST /api/boards/:id/cards/from-text` on your FlowBoard server, which runs the same parse pipeline as the browser Smart Add and then inserts the card in one transaction. If `GROQ_API_KEY` is not set on the server it returns `AI_UNAVAILABLE`.

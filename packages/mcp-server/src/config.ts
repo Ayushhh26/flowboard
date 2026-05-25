@@ -10,7 +10,7 @@ export function loadConfig(): FlowboardConfig {
     throw new Error('FLOWBOARD_API_TOKEN is required (create one in FlowBoard → user menu → API tokens)')
   }
 
-  const baseUrl = (process.env.FLOWBOARD_BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
+  const baseUrl = (process.env.FLOWBOARD_BASE_URL ?? 'https://flowboard-kapp.vercel.app').replace(/\/$/, '')
   const defaultBoardId = process.env.FLOWBOARD_BOARD_ID?.trim() || undefined
 
   return { baseUrl, apiToken, defaultBoardId }
