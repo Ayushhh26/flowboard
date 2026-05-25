@@ -61,6 +61,7 @@ Same env vars; point the MCP entry at `node` + `packages/mcp-server/dist/index.j
 | `get_board_summary` | Counts by column/priority + urgent list |
 | `search_cards` | Filter by text, priority, assignee, labels |
 | `create_card` | Create in a column; optional description, assignee, labels |
+| `create_card_from_text` | Natural language → card (Smart Add parser, server-side create) |
 | `move_card` | Move between columns; omit `newOrderIndex` to append |
 
 **Tip for agents:** Call `get_board` first to learn column IDs and titles before `create_card` or `move_card`.
@@ -82,4 +83,4 @@ curl -s -H "Authorization: Bearer $FLOWBOARD_API_TOKEN" \
 - **MCP server exits immediately** — Run `node packages/mcp-server/dist/index.js` in a terminal; stderr shows missing `FLOWBOARD_API_TOKEN`.
 - **Production** — Set `FLOWBOARD_BASE_URL` to your Vercel URL; create a token on the deployed app.
 
-Phase 3 adds `create_card_from_text` (natural language → card via Smart Add parse API).
+`create_card_from_text` calls `POST /api/boards/:id/cards/from-text` on your FlowBoard server, which runs the same parse pipeline as the browser Smart Add and then inserts the card in one transaction. If `GROQ_API_KEY` is not set on the server it returns `AI_UNAVAILABLE`.

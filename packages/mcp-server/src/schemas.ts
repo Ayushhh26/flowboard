@@ -31,6 +31,15 @@ export const createCardInputSchema = boardIdArgSchema.extend({
   labelIds: z.array(z.string().uuid()).optional(),
 })
 
+export const createCardFromTextInputSchema = boardIdArgSchema.extend({
+  text: z
+    .string()
+    .trim()
+    .min(1)
+    .max(2000)
+    .describe('Natural-language description of the task (e.g. "fix the login bug, urgent, assign to Ayush")'),
+})
+
 export const moveCardInputSchema = boardIdArgSchema.extend({
   cardId: z.string().uuid(),
   targetColumnId: z.string().uuid(),

@@ -3,6 +3,7 @@ import { FlowboardClient } from './client.js'
 import { resolveBoardId, type FlowboardConfig } from './config.js'
 import { buildBoardSummary } from './summary.js'
 import {
+  createCardFromTextInputSchema,
   createCardInputSchema,
   getBoardInputSchema,
   getBoardSummaryInputSchema,
@@ -154,6 +155,23 @@ export function registerFlowboardTools(server: McpServer, config: FlowboardConfi
       }
 
       return textResult(created)
+    }
+  )
+
+  server.registerTool(
+    'create_card_from_text',
+    {
+      title: 'Create card from text',
+      description:
+        'Natural language → card. Uses the same Smart Add parser as the browser: title, description, priority, column, assignee, and labels are extracted from one sentence and the card is created atomically. Requires editor access and a configured GROQ_API_KEY on the FlowBoard server.',
+      inputSchema: createCardFromTextInputSchema,
+    },
+    async (args) => {
+      const boardId = resolveBoardId(args.boardId, config.defaultBoardId)
+      const result = await client.post<unknown>(`/api/boards/${boardId}/cards/from-text`, {
+        text: args.text,
+      })
+      return textResult(result)
     }
   )
 
