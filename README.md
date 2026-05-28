@@ -3,11 +3,21 @@
 [![mcp npm](https://img.shields.io/npm/v/flowboard-mcp-server?label=mcp%20server&logo=npm)](https://www.npmjs.com/package/flowboard-mcp-server)
 [![license](https://img.shields.io/github/license/Ayushhh26/flowboard)](./LICENSE)
 
-A Kanban workspace built to explore the hard parts of building production-grade frontend systems: optimistic state, drag-and-drop across containers, and clean separation between server and UI state.
+A Kanban workspace with optimistic updates, cross-column drag-and-drop, and a strict split between server state (React Query) and UI state (Zustand).
 
-> **Live demo:** [flowboard-kapp.vercel.app](https://flowboard-kapp.vercel.app) · **Demo mode:** toggle the pill in the header to simulate a server failure mid-drag and watch the optimistic update roll back with a toast.
+> **Live demo:** [flowboard-kapp.vercel.app](https://flowboard-kapp.vercel.app) · **Demo mode:** toggle the pill in the header (when `NEXT_PUBLIC_DEMO_MODE=true`) to simulate a server failure mid-drag and watch the optimistic update roll back with a toast.
 
-![demo](docs/demo.gif)
+---
+
+## Features
+
+- **Kanban board** — columns and cards with drag-and-drop (`@dnd-kit`), inline edits, labels, priorities, assignees
+- **Board sharing** — invite collaborators by email with `editor` or `viewer` roles
+- **Filters** — priority, assignee, and label filters on the board toolbar
+- **Realtime sync** — Supabase Realtime keeps multiple tabs in sync
+- **Smart Add** — natural-language card creation with preview (requires `GROQ_API_KEY`)
+- **MCP server** — [`flowboard-mcp-server`](https://www.npmjs.com/package/flowboard-mcp-server) for agent-driven board ops via personal API tokens
+- **Light / dark theme** — manual toggle, persisted in localStorage
 
 ---
 
@@ -21,15 +31,15 @@ A Kanban workspace built to explore the hard parts of building production-grade 
 
 ---
 
-## Technical Decisions
+## Architecture notes
 
-The interesting parts aren't visible from the screenshot. Here's why this is built the way it is.
+A few choices that are easy to miss when skimming the UI.
 
 ### 1. Server state and UI state live in different stores
 
 React Query owns everything that came from the server (boards, columns, cards). Zustand owns everything ephemeral (which drawer is open, whether demo mode is on). The two never mix.
 
-**Why:** Putting API data in a global UI store turns every fetch, mutation, and refetch into manual cache plumbing. React Query already solves caching, deduping, and invalidation. Zustand is reserved for state that has no server counterpart — that way I never have to ask "is this the source of truth or a stale copy?"
+**Why:** Putting API data in a global UI store turns every fetch, mutation, and refetch into manual cache plumbing. React Query already handles caching, deduping, and invalidation. Zustand holds only state with no server counterpart, so there is always one source of truth for board data.
 
 ### 2. Optimistic updates with cache snapshots, not setState
 
@@ -57,7 +67,7 @@ onSettled: () => queryClient.invalidateQueries({ queryKey: ['board', boardId] })
 
 When a user drags a card across columns, the cache is updated continuously as `onDragOver` fires. `onDragEnd` only computes the final `orderIndex` and triggers the mutation.
 
-**Why:** If you wait until drop to update state, the user sees the card snap to its new column at the end instead of moving in real time. Updating during `onDragOver` gives Trello-quality feedback. A `lastOverId` ref prevents redundant cache writes when the pointer hasn't actually crossed a new boundary, and a `boardSnapshot` ref captures the pre-drag state so cancellation can fully restore it.
+**Why:** If you wait until drop to update state, the card jumps to its new column at the end instead of following the pointer. Updating during `onDragOver` keeps movement in sync with the drag. A `lastOverId` ref skips redundant cache writes when the pointer hasn't crossed a new target, and a `boardSnapshot` ref captures the pre-drag state so cancel restores cleanly.
 
 ### 4. Fractional indexing instead of integer `orderIndex`
 
@@ -76,11 +86,11 @@ export function computeOrderIndex(cards, insertIndex) {
 
 **Why:** With integer ordering, a single drag in the middle of a column rewrites every subsequent row's index. That doesn't scale, breaks optimistic updates (because the optimistic cache disagrees with the server's reindexed values), and amplifies write load. Fractional indexing makes every move a single-row update — cheap on the server, trivial to rollback on the client.
 
-### 5. Demo mode as a real failure-injection tool
+### 5. Demo mode (simulated mutation failures)
 
-A toggle in the header sets a Zustand flag. When on, `useMoveCard.mutationFn` adds an `x-simulate-failure: true` header. The API route checks for it and returns a 500. The toggle auto-resets after one failure so the next drag works again.
+When `NEXT_PUBLIC_DEMO_MODE=true`, a header toggle sets a Zustand flag. While enabled, `useMoveCard` sends `x-simulate-failure: true`; the API returns 500. The toggle resets after one failure so the next drag succeeds normally.
 
-**Why:** Optimistic update rollback is the kind of thing that "works on my machine" until it doesn't. Having a one-click way to demonstrate the failure path — both during development and in interview demos — means the rollback path is exercised constantly instead of being theoretical.
+**Why:** Rollback paths are awkward to test by hand. Demo mode forces a failed move on demand so `onError` snapshot restore and error toasts stay verified during development.
 
 ---
 
@@ -139,9 +149,11 @@ The Smart Add button is hidden when `GROQ_API_KEY` is not configured (the client
 Setup is in [`docs/mcp-setup.md`](docs/mcp-setup.md). The short version:
 
 1. **Create an API token** in FlowBoard (user menu → API tokens) and copy the `fb_…` value.
-2. **Build the server:** `npm run mcp:build`.
-3. **Copy** [`.cursor/mcp.json.example`](.cursor/mcp.json.example) to `.cursor/mcp.json` and fill in the token, board ID, and the absolute path to `dist/index.js`.
-4. **Restart Cursor** and the `flowboard` MCP server appears with its tools.
+2. **Copy** [`.cursor/mcp.json.example`](.cursor/mcp.json.example) to `.cursor/mcp.json` (or add to Cursor Settings → MCP) and set `FLOWBOARD_API_TOKEN` and `FLOWBOARD_BOARD_ID`.
+3. Use **`npx -y flowboard-mcp-server`** as the command (no clone or local build required). Defaults to the live app at `https://flowboard-kapp.vercel.app`; set `FLOWBOARD_BASE_URL` when pointing at a local dev server.
+4. **Restart Cursor** — the `flowboard` MCP server appears with its tools.
+
+To develop the MCP package in this repo: `npm run mcp:build` then point Cursor at `packages/mcp-server/dist/index.js` (see `docs/mcp-setup.md`).
 
 ### Security model
 
@@ -157,7 +169,7 @@ Setup is in [`docs/mcp-setup.md`](docs/mcp-setup.md). The short version:
 | `GROQ_API_KEY` | Server | Smart Add (browser + MCP `create_card_from_text`) |
 | `GROQ_MODEL` | Server | Optional override (defaults to `openai/gpt-oss-20b`) |
 | `FLOWBOARD_API_TOKEN` | MCP env | All MCP tools |
-| `FLOWBOARD_BASE_URL` | MCP env | All MCP tools (default `http://localhost:3000`) |
+| `FLOWBOARD_BASE_URL` | MCP env | All MCP tools (default `https://flowboard-kapp.vercel.app`; use `http://localhost:3000` for local dev) |
 | `FLOWBOARD_BOARD_ID` | MCP env | Optional default board for tools that accept `boardId` |
 
 ---
@@ -167,28 +179,36 @@ Setup is in [`docs/mcp-setup.md`](docs/mcp-setup.md). The short version:
 ```
 src/
   app/                 Next.js App Router (pages + API routes)
-    api/               REST endpoints for boards, columns, cards, tokens
-      boards/[id]/
-        cards/
+    api/
+      boards/          CRUD, columns, labels, members, invitations
+        [id]/cards/
           parse/       Smart Add — preview-only (browser)
           from-text/   Smart Add — atomic create (MCP)
           search/      Filterable list (MCP search_cards)
+      cards/           Card update, move
+      columns/         Column CRUD, cards, move
+      tokens/          API token create / revoke (MCP auth)
+      features/        Feature flags (e.g. Smart Add enabled)
   components/
-    board/             BoardCanvas, Column, CardItem, CardDrawer, SmartAddCardDialog
+    board/             BoardCanvas, Column, CardItem, CardDrawer, FilterBar, ShareBoardDialog, SmartAddCardDialog
     settings/          ApiTokensDialog (create/revoke MCP tokens)
-    ui/                Button, Badge, Skeleton, InlineEdit primitives
-  hooks/               useBoard, useMoveCard, useCreateCard, useParseCard, useSmartCreateCard
+    ui/                Button, Badge, Skeleton, InlineEdit, ThemeToggle primitives
+  hooks/               useBoard, useMoveCard, useCreateCard, useParseCard, useSmartCreateCard, useBoardRealtime, …
   lib/
-    ai/                groq client, prompt, draft validation
+    ai/                Groq client, prompt, draft validation
     auth.ts            requireUser (cookie) + requireActor (cookie OR Bearer token)
-    fractionalIndex.ts cn (className helper), Prisma client
-  stores/              useDrawerStore, useDemoStore, useFilterStore
+    cn.ts              className helper
+    db.ts              Prisma client
+    fractionalIndex.ts Card/column ordering (floats)
+  stores/              useDrawerStore, useDemoStore, useFilterStore, useThemeStore, …
   types/               Shared types (Board, Card, Column, ApiResponse, agent)
 packages/
   mcp-server/          flowboard-mcp-server — stdio MCP server with 6 tools
 prisma/
-  schema.prisma        Boards → Columns → Cards, plus Labels, Users, ApiToken
+  schema.prisma        Boards, Columns, Cards, Labels, Users, BoardMember, ApiToken, …
   seed.ts              Seed data for local development
+design-system/
+  MASTER.md            Typography, colors, interaction tokens
 ```
 
 ---
@@ -241,7 +261,7 @@ Required env vars:
 3. **Auth** — add your Vercel domain to Supabase → Authentication → URL Configuration (Site URL + redirect URLs).
 4. **Verify** — sign up, create a board, drag a card across columns, and confirm realtime sync in a second tab.
 
-Set `NEXT_PUBLIC_DEMO_MODE=true` in preview/production if you want the failure-injection toggle visible to reviewers.
+Set `NEXT_PUBLIC_DEMO_MODE=true` in preview or production to show the demo-mode toggle in the header.
 
 ### E2E tests (Playwright)
 
@@ -250,16 +270,26 @@ npx playwright install chromium
 PLAYWRIGHT_BOARD_ID=<your-board-id> npm run test:e2e
 ```
 
-Tests log in via `e2e/auth.setup.ts` using `PLAYWRIGHT_EMAIL` and `PLAYWRIGHT_PASSWORD`. Omit `PLAYWRIGHT_BOARD_ID` to use the first board on the home page. Set `PLAYWRIGHT_BASE_URL` when targeting a deployed preview.
+Tests log in via `e2e/auth.setup.ts` using `PLAYWRIGHT_EMAIL` and `PLAYWRIGHT_PASSWORD`. Omit `PLAYWRIGHT_BOARD_ID` to use the first board on the home page. Set `PLAYWRIGHT_BASE_URL` when targeting a deployed preview. Locally, Playwright starts `npm run dev`; in CI it runs against `npm run start` after `npm run build`.
+
+### Unit tests
+
+```bash
+npm run test:unit
+```
+
+Covers Smart Add draft validation (`src/lib/ai/parseCardDraft.test.ts`) and board card search (`src/lib/searchBoardCards.test.ts`). The MCP package has its own tests: `npm run mcp:test`.
 
 ### CI (GitHub Actions)
 
 On every push to `main` and on pull requests, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs:
 
 1. `npm run lint`
-2. `npm run typecheck`
-3. `npm run build`
-4. Playwright E2E against a production build (`npm run start`)
+2. `npx prisma generate`
+3. `npm run typecheck`
+4. `npm run mcp:typecheck` and `npm run mcp:test`
+5. `npm run build` and `npm run mcp:build`
+6. Playwright E2E against a production build (`npm run start` via `playwright.config.ts` `webServer`)
 
 **Repository secrets** (Settings → Secrets and variables → Actions):
 
